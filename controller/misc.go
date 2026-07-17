@@ -54,6 +54,7 @@ func GetStatus(c *gin.Context) {
 		"version":                     common.Version,
 		"start_time":                  common.StartTime,
 		"email_verification":          common.EmailVerificationEnabled,
+		"phone_verification":          common.PhoneVerificationEnabled,
 		"github_oauth":                common.GitHubOAuthEnabled,
 		"github_client_id":            common.GitHubClientId,
 		"discord_oauth":               system_setting.GetDiscordSettings().Enabled,
@@ -231,6 +232,53 @@ func GetHomePageContent(c *gin.Context) {
 		"data":    common.OptionMap["HomePageContent"],
 	})
 	return
+}
+
+// SendSMSCode dispatches a numeric verification code to the given
+// mainland-China mobile number via the configured SMS provider. Rate
+// limiting is enforced at two layers: the per-IP middleware below
+// (CriticalRateLimit) and the per-phone/per-IP counters inside
+// common.SendCodeWithLimitCheck.
+// Modified by aytdai on 2026-07-18 under AGPLv3.
+func SendSMSCode(c *gin.Context) {
+	if !common.PhoneVerificationEnabled {
+		common.ApiErrorI18n(c, i18n.MsgFeatureDisabled)
+		return
+	}
+	var body struct {
+		Phone string `json:"phone"`
+	}
+	_ = c.ShouldBindJSON(&body)
+	phone := strings.TrimSpace(body.Phone)
+	if phone == "" {
+		phone = strings.TrimSpace(c.Query("phone"))
+	}
+	if phone == "" {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	if !common.IsValidPhone(phone) {
+		common.ApiErrorI18n(c, i18n.MsgSMSInvalidPhone)
+		return
+	}
+	ip := c.ClientIP()
+	if err := common.SendCodeWithLimitCheck(phone, ip); err != nil {
+		if errors.Is(err, common.ErrSMSRateLimited) {
+			common.ApiErrorI18n(c, i18n.MsgSMSRateLimit)
+			return
+		}
+		if errors.Is(err, common.ErrSMSInvalidPhone) {
+			common.ApiErrorI18n(c, i18n.MsgSMSInvalidPhone)
+			return
+		}
+		common.SysLog("SendSMSCode error: " + err.Error())
+		common.ApiErrorI18n(c, i18n.MsgSMSSendFailed)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
 }
 
 func SendEmailVerification(c *gin.Context) {

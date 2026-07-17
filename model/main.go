@@ -268,6 +268,11 @@ func migrateDB() error {
 		return err
 	}
 
+		// Drop partial unique index on phone before AutoMigrate — GORM's DDL
+	// parser cannot handle WHERE clauses in CREATE INDEX statements.
+	// InitPhoneIndex() will recreate it after migration.
+	DB.Exec("DROP INDEX IF EXISTS idx_users_phone_unique")
+
 	err := DB.AutoMigrate(
 		&Channel{},
 		&Token{},
@@ -301,6 +306,13 @@ func migrateDB() error {
 		&AuthzRole{},
 	)
 	if err != nil {
+		return err
+	}
+
+	// Initialize the partial unique index on users.phone (added by aytdai, AGPLv3).
+	// SQLite cannot add UNIQUE columns via ALTER TABLE, so we do it here
+	// with raw SQL using CREATE UNIQUE INDEX IF NOT EXISTS.
+	if err := InitPhoneIndex(); err != nil {
 		return err
 	}
 	if common.UsingMainDatabase(common.DatabaseTypeSQLite) {

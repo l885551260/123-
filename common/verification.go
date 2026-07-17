@@ -16,11 +16,16 @@ type verificationValue struct {
 const (
 	EmailVerificationPurpose = "v"
 	PasswordResetPurpose     = "r"
+	// SMSVerificationPurpose is the key prefix used when registering SMS
+	// verification codes via RegisterVerificationCodeWithKey. Distinct from
+	// email and password-reset purposes so the same phone/email string
+	// cannot be confused across channels.
+	SMSVerificationPurpose = "s"
 )
 
 var verificationMutex sync.Mutex
 var verificationMap map[string]verificationValue
-var verificationMapMaxSize = 10
+var verificationMapMaxSize = 10000
 var VerificationValidMinutes = 10
 
 func GenerateVerificationCode(length int) string {

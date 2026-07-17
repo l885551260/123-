@@ -44,6 +44,7 @@ import { OAuthProviders } from '@/features/auth/components/oauth-providers'
 import { registerFormSchema } from '@/features/auth/constants'
 import { useAuthRedirect } from '@/features/auth/hooks/use-auth-redirect'
 import { useEmailVerification } from '@/features/auth/hooks/use-email-verification'
+import { useSMSVerification } from '@/features/auth/hooks/use-sms-verification'
 import { useTurnstile } from '@/features/auth/hooks/use-turnstile'
 import {
   getAffiliateCode,
@@ -59,6 +60,8 @@ export function SignUpForm({
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
+  const [phone, setPhone] = useState('')
+  const [phoneCode, setPhoneCode] = useState('')
   const [agreedToLegal, setAgreedToLegal] = useState(false)
   const [wechatCode, setWeChatCode] = useState('')
   const [isWeChatDialogOpen, setIsWeChatDialogOpen] = useState(false)
@@ -83,6 +86,15 @@ export function SignUpForm({
     turnstileToken,
     validateTurnstile,
   })
+  const {
+    isSending: isSendingSMS,
+    secondsLeft: smsSecondsLeft,
+    isActive: smsIsActive,
+    sendCode: sendSMS,
+  } = useSMSVerification({
+    turnstileToken,
+    validateTurnstile,
+  })
 
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
@@ -96,6 +108,7 @@ export function SignUpForm({
 
   const emailValue = form.watch('email')
   const emailVerificationRequired = !!status?.email_verification
+  const phoneVerificationRequired = !!status?.phone_verification
   const hasUserAgreement = Boolean(status?.user_agreement_enabled)
   const hasPrivacyPolicy = Boolean(status?.privacy_policy_enabled)
   const requiresLegalConsent = hasUserAgreement || hasPrivacyPolicy
@@ -141,6 +154,18 @@ export function SignUpForm({
       return
     }
 
+    // Validate phone verification if required
+    if (phoneVerificationRequired) {
+      if (!phone) {
+        toast.error(t('Please enter your phone number'))
+        return
+      }
+      if (!phoneCode) {
+        toast.error(t('Please enter the SMS verification code'))
+        return
+      }
+    }
+
     // Validate email verification if required
     if (emailVerificationRequired) {
       if (!data.email) {
@@ -164,6 +189,8 @@ export function SignUpForm({
         verification_code: verificationCode || undefined,
         aff_code: getAffiliateCode(),
         turnstile: turnstileToken,
+        phone: phoneVerificationRequired ? phone : undefined,
+        phone_code: phoneVerificationRequired ? phoneCode : undefined,
       })
 
       if (res?.success) {
@@ -329,6 +356,54 @@ export function SignUpForm({
                   <Loader2 className='h-4 w-4 animate-spin' />
                 ) : (
                   t('Send code')
+                )}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Phone Verification Section */}
+        {phoneVerificationRequired && (
+          <>
+            {/* Phone Field */}
+            <div className='space-y-2'>
+              <Label htmlFor='phone'>{t('Phone number')}</Label>
+              <Input
+                id='phone'
+                placeholder={t('Enter phone number')}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type='tel'
+              />
+            </div>
+
+            {/* SMS Code Field */}
+            <div className='flex items-end gap-2'>
+              <div className='flex-1'>
+                <Input
+                  placeholder={t('SMS verification code')}
+                  value={phoneCode}
+                  onChange={(e) => setPhoneCode(e.target.value)}
+                />
+              </div>
+              <Button
+                variant='outline'
+                type='button'
+                disabled={
+                  isLoading ||
+                  isSendingSMS ||
+                  smsIsActive ||
+                  !phone ||
+                  !turnstileReady
+                }
+                onClick={() => sendSMS(phone)}
+              >
+                {smsIsActive ? (
+                  t('Resend ({{seconds}}s)', { seconds: smsSecondsLeft })
+                ) : isSendingSMS ? (
+                  <Loader2 className='h-4 w-4 animate-spin' />
+                ) : (
+                  t('Send SMS')
                 )}
               </Button>
             </div>

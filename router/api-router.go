@@ -40,6 +40,9 @@ func SetApiRouter(router *gin.Engine) {
 		}
 		apiRouter.GET("/rankings", middleware.HeaderNavModuleAuth("rankings"), controller.GetRankings)
 		apiRouter.GET("/verification", middleware.EmailVerificationRateLimit(), middleware.TurnstileCheck(), controller.SendEmailVerification)
+		// SMS / phone verification (added by aytdai, AGPLv3). Uses CriticalRateLimit
+		// for IP throttling; per-phone limits are enforced inside SendSMSCode.
+		apiRouter.POST("/sms/send", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.SendSMSCode)
 		apiRouter.GET("/reset_password", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.SendPasswordResetEmail)
 		apiRouter.POST("/user/reset", middleware.CriticalRateLimit(), anonymousRequestBodyLimit, controller.ResetPassword)
 		// OAuth routes - specific routes must come before :provider wildcard

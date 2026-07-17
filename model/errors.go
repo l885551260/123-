@@ -14,6 +14,9 @@ var (
 	ErrEmailAlreadyTaken    = errors.New("email already taken")
 	ErrEmailNotFound        = errors.New("email not found")
 	ErrEmailAmbiguous       = errors.New("email matches multiple users")
+	// ErrPhoneAlreadyTaken is returned by EnsurePhoneAvailable when the
+	// requested phone number is already associated with another user.
+	ErrPhoneAlreadyTaken = errors.New("phone already taken")
 )
 
 // Token auth errors

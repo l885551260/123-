@@ -2025,7 +2025,7 @@
     "footer.columns.related.links.oneApi": "1つのAPI",
     "footer.columns.related.title": "関連プロジェクト",
     "footer.defaultCopyright": "すべての権利を留保します。",
-    "footer.new\u0061pi.projectAttributionSuffix": "すべての権利を留保します。プロジェクトコントリビューターにより設計・開発されています。",
+    "footer.newapi.projectAttributionSuffix": "すべての権利を留保します。プロジェクトコントリビューターにより設計・開発されています。",
     "For channels added after May 10, 2025, no need to remove \".\" from model names during deployment": "2025 年 5 月 10 日以降に追加されたチャネルの場合、デプロイ時にモデル名から「.」を削除する必要はありません",
     "For private deployments, format: https://fastgpt.run/api/openapi": "プライベートデプロイメントの場合、形式: https://fastgpt.run/api/openapi",
     "Force a syntactically valid JSON response": "構文的に有効な JSON 応答を強制",
@@ -5179,5 +5179,13 @@
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V 4",
     "Zoom": "ズーム"
-  }
+  },
+  "Phone number": "電話番号",
+  "Enter phone number": "電話番号を入力",
+  "SMS verification code": "SMS認証コード",
+  "Send SMS": "SMS送信",
+  "Please enter your phone number": "電話番号を入力してください",
+  "Please enter the SMS verification code": "SMS認証コードを入力してください",
+  "Verification code sent": "認証コードを送信しました",
+  "Failed to send verification code": "認証コードの送信に失敗しました"
 }

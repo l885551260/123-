@@ -142,6 +142,52 @@ var WeChatAccountQRCodeImageURL = ""
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
+// ============================================================================
+// SMS / Phone verification (added by aytdai on 2026-07-18, AGPLv3)
+// Mainland-China mobile numbers only; see common/sms.go for the dispatcher
+// and common/sms_limit.go for the rate-limiter.
+// ============================================================================
+
+// PhoneVerificationEnabled gates the whole phone-verification feature.
+// When false, the register UI hides the phone block and the backend
+// skips all phone-related checks. Defaults to false so operators must
+// explicitly opt in via the admin panel.
+var PhoneVerificationEnabled = false
+
+// SMSServiceProvider selects the backend dispatcher. Accepted values:
+//   - "console" (default): log the code to journalctl, do NOT send SMS.
+//     Safe for development and servers without Aliyun credentials.
+//   - "aliyun": use Aliyun dysmsapi via common/sms_aliyun.go.
+var SMSServiceProvider = "console"
+
+// Aliyun credentials — MUST be set via the admin panel / database,
+// never committed to source. The provider falls back to console mode
+// when any of these is empty.
+var SMSAccessKeyID = ""
+var SMSAccessKeySecret = ""
+
+// Aliyun SMS signature and template. Must be approved in the Aliyun
+// console before sending real SMS. Example: SignName="我的网站",
+// TemplateCode="SMS_123456" with template body {"code":"${code}"}.
+var SMSSignName = ""
+var SMSTemplateCode = ""
+
+// SMSCodeLength is the number of digits in the generated verification
+// code. 6 is industry-standard; shorter codes are easier to brute-force.
+var SMSCodeLength = 6
+
+// SMSCodeTTLSeconds controls how long a generated code stays valid.
+// Defaults to 5 minutes — aligned with common.VerificationValidMinutes
+// which is used by the underlying VerifyCodeWithKey helper.
+var SMSCodeTTLSeconds = 300
+
+// Rate-limit knobs — these are intentionally conservative to stop
+// phone-number enumeration and SMS-fraud ("短信轰炸") out of the box.
+var SMSPerPhoneInterval = 60   // seconds between two sends to the same phone
+var SMSPerPhoneDailyMax = 10   // max sends per phone per 24h window
+var SMSPerIPHourlyMax = 5      // max sends per client IP per hour
+var SMSPerIPDailyMax = 20      // max sends per client IP per 24h
+
 var TelegramBotToken = ""
 var TelegramBotName = ""
 

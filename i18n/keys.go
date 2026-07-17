@@ -87,6 +87,14 @@ const (
 	MsgUserEmailVerificationRequired = "user.email_verification_required"
 	MsgUserVerificationCodeError     = "user.verification_code_error"
 	MsgUserEmailAlreadyTaken         = "user.email_already_taken"
+
+	// SMS / phone verification keys (added by aytdai, AGPLv3)
+	MsgUserPhoneAlreadyTaken            = "user.phone_already_taken"
+	MsgUserPhoneVerificationRequired    = "user.phone_verification_required"
+	MsgUserPhoneVerificationCodeError   = "user.phone_verification_code_error"
+	MsgSMSRateLimit                     = "sms.rate_limit"
+	MsgSMSInvalidPhone                  = "sms.invalid_phone"
+	MsgSMSSendFailed                    = "sms.send_failed"
 	MsgUserPasswordUnset             = "user.password_unset"
 	MsgUserPasswordResetLinkInvalid  = "user.password_reset_link_invalid"
 	MsgUserInputInvalid              = "user.input_invalid"

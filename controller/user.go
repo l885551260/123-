@@ -195,8 +195,15 @@ func Register(c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgUserPasswordRegisterDisabled)
 		return
 	}
-	var user model.User
-	err := json.NewDecoder(c.Request.Body).Decode(&user)
+	type RegisterRequest struct {
+		model.User
+		Phone     string `json:"phone"`
+		PhoneCode string `json:"phone_code"`
+	}
+	var req RegisterRequest
+	err := json.NewDecoder(c.Request.Body).Decode(&req)
+	user := &req.User  // local alias so the rest of the function keeps working
+	_ = user
 	if err != nil {
 		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
 		return
@@ -207,9 +214,32 @@ func Register(c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
 		return
 	}
-	if err := common.Validate.Struct(&user); err != nil {
+	if err := common.Validate.Struct(user); err != nil {
 		common.ApiErrorI18n(c, i18n.MsgUserInputInvalid, map[string]any{"Error": err.Error()})
 		return
+	}
+	if common.PhoneVerificationEnabled {
+		if req.Phone == "" || req.PhoneCode == "" {
+			common.ApiErrorI18n(c, i18n.MsgUserPhoneVerificationRequired)
+			return
+		}
+		if !common.IsValidPhone(req.Phone) {
+			common.ApiErrorI18n(c, i18n.MsgSMSInvalidPhone)
+			return
+		}
+		if !common.VerifyCodeWithKey(req.Phone, req.PhoneCode, common.SMSVerificationPurpose) {
+			common.ApiErrorI18n(c, i18n.MsgUserPhoneVerificationCodeError)
+			return
+		}
+		if err := model.EnsurePhoneAvailable(req.Phone, 0); err != nil {
+			if errors.Is(err, model.ErrPhoneAlreadyTaken) {
+				common.ApiErrorI18n(c, i18n.MsgUserPhoneAlreadyTaken)
+				return
+			}
+			common.ApiErrorI18n(c, i18n.MsgDatabaseError)
+			return
+		}
+		common.DeleteKey(req.Phone, common.SMSVerificationPurpose)
 	}
 	if common.EmailVerificationEnabled {
 		if user.Email == "" || user.VerificationCode == "" {
@@ -254,6 +284,9 @@ func Register(c *gin.Context) {
 	}
 	if common.EmailVerificationEnabled {
 		cleanUser.Email = user.Email
+	}
+	if common.PhoneVerificationEnabled {
+		cleanUser.Phone = req.Phone
 	}
 	if err := cleanUser.Insert(inviterId); err != nil {
 		if errors.Is(err, model.ErrEmailAlreadyTaken) {
@@ -842,7 +875,7 @@ func UpdateSelf(c *gin.Context) {
 	if user.Password == "" {
 		user.Password = "$I_LOVE_U" // make Validator happy :)
 	}
-	if err := common.Validate.Struct(&user); err != nil {
+	if err := common.Validate.Struct(user); err != nil {
 		common.ApiErrorI18n(c, i18n.MsgInvalidInput)
 		return
 	}
@@ -966,7 +999,7 @@ func CreateUser(c *gin.Context) {
 		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
 		return
 	}
-	if err := common.Validate.Struct(&user); err != nil {
+	if err := common.Validate.Struct(user); err != nil {
 		common.ApiErrorI18n(c, i18n.MsgUserInputInvalid, map[string]any{"Error": err.Error()})
 		return
 	}
