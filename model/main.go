@@ -303,7 +303,8 @@ func migrateDB() error {
 		&SystemTask{},
 		&SystemTaskLock{},
 		&CasbinRule{},
-		&AuthzRole{},
+		&AuthzRole{},AuthzRole{},
+		&PhoneRegistry{},
 	)
 	if err != nil {
 		return err

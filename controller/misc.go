@@ -264,6 +264,7 @@ func SendSMSCode(c *gin.Context) {
 	ip := c.ClientIP()
 	if err := common.SendCodeWithLimitCheck(phone, ip); err != nil {
 		if errors.Is(err, common.ErrSMSRateLimited) {
+			model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSRateLimit, ip, c.Request.UserAgent(), common.SMSServiceProvider, "rate_limited", err.Error())
 			common.ApiErrorI18n(c, i18n.MsgSMSRateLimit)
 			return
 		}
@@ -272,9 +273,14 @@ func SendSMSCode(c *gin.Context) {
 			return
 		}
 		common.SysLog("SendSMSCode error: " + err.Error())
+		model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSFail, ip, c.Request.UserAgent(), common.SMSServiceProvider, "fail", err.Error())
 		common.ApiErrorI18n(c, i18n.MsgSMSSendFailed)
 		return
 	}
+
+	// Audit: record successful SMS send (aytdai, AGPLv3)
+	model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSSend, ip, c.Request.UserAgent(), common.SMSServiceProvider, "success", "")
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "",

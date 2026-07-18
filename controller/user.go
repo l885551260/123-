@@ -233,6 +233,7 @@ func Register(c *gin.Context) {
 		}
 		if err := model.EnsurePhoneAvailable(req.Phone, 0); err != nil {
 			if errors.Is(err, model.ErrPhoneAlreadyTaken) {
+				model.RecordPhoneAction(req.Phone, 0, "", model.PhoneActionRegisterFail, c.ClientIP(), c.Request.UserAgent(), "", "phone_taken", "")
 				common.ApiErrorI18n(c, i18n.MsgUserPhoneAlreadyTaken)
 				return
 			}
@@ -302,6 +303,11 @@ func Register(c *gin.Context) {
 	if err := model.DB.Where("username = ?", cleanUser.Username).First(&insertedUser).Error; err != nil {
 		common.ApiErrorI18n(c, i18n.MsgUserRegisterFailed)
 		return
+	}
+
+	// Audit: record phone registration event (aytdai, AGPLv3)
+	if common.PhoneVerificationEnabled && req.Phone != "" {
+		model.RecordPhoneAction(req.Phone, insertedUser.Id, insertedUser.Username, model.PhoneActionRegister, c.ClientIP(), c.Request.UserAgent(), "", "success", "")
 	}
 	// 生成默认令牌
 	if constant.GenerateDefaultToken {

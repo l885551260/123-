@@ -310,30 +310,6 @@ func updateOptionMap(key string, value string) (err error) {
 			common.TelegramOAuthEnabled = boolValue
 		case "TurnstileCheckEnabled":
 			common.TurnstileCheckEnabled = boolValue
-		// --- SMS string options (added by aytdai, AGPLv3) ---
-		case "SMSServiceProvider":
-			common.SMSServiceProvider = value
-		case "SMSAccessKeyID":
-			common.SMSAccessKeyID = value
-		case "SMSAccessKeySecret":
-			common.SMSAccessKeySecret = value
-		case "SMSSignName":
-			common.SMSSignName = value
-		case "SMSTemplateCode":
-			common.SMSTemplateCode = value
-		// --- SMS int options (added by aytdai, AGPLv3) ---
-		case "SMSCodeLength":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSCodeLength = n }
-		case "SMSCodeTTLSeconds":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSCodeTTLSeconds = n }
-		case "SMSPerPhoneInterval":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSPerPhoneInterval = n }
-		case "SMSPerPhoneDailyMax":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSPerPhoneDailyMax = n }
-		case "SMSPerIPHourlyMax":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSPerIPHourlyMax = n }
-		case "SMSPerIPDailyMax":
-			if n, err := strconv.Atoi(value); err == nil { common.SMSPerIPDailyMax = n }
 		case "RegisterEnabled":
 			common.RegisterEnabled = boolValue
 		case "EmailDomainRestrictionEnabled":
@@ -404,6 +380,47 @@ func updateOptionMap(key string, value string) (err error) {
 			ratio_setting.SetExposeRatioEnabled(boolValue)
 		}
 	}
+	// --- SMS options (added by aytdai, AGPLv3) ---
+	// These keys do NOT end with "Enabled", so they need their own block.
+	if strings.HasPrefix(key, "SMS") {
+		switch key {
+		case "SMSServiceProvider":
+			common.SMSServiceProvider = value
+		case "SMSAccessKeyID":
+			common.SMSAccessKeyID = value
+		case "SMSAccessKeySecret":
+			common.SMSAccessKeySecret = value
+		case "SMSSignName":
+			common.SMSSignName = value
+		case "SMSTemplateCode":
+			common.SMSTemplateCode = value
+		case "SMSCodeLength":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSCodeLength = n
+			}
+		case "SMSCodeTTLSeconds":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSCodeTTLSeconds = n
+			}
+		case "SMSPerPhoneInterval":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSPerPhoneInterval = n
+			}
+		case "SMSPerPhoneDailyMax":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSPerPhoneDailyMax = n
+			}
+		case "SMSPerIPHourlyMax":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSPerIPHourlyMax = n
+			}
+		case "SMSPerIPDailyMax":
+			if n, err := strconv.Atoi(value); err == nil {
+				common.SMSPerIPDailyMax = n
+			}
+		}
+	}
+
 	switch key {
 	case "EmailDomainWhitelist":
 		common.EmailDomainWhitelist = strings.Split(value, ",")
