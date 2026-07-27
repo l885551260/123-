@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import type { z } from 'zod'
 
+import { PasswordInput } from '@/components/password-input'
 import { Turnstile } from '@/components/turnstile'
 import { Button } from '@/components/ui/button'
 import {
@@ -35,21 +36,38 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { sendPasswordResetEmail } from '@/features/auth/api'
+import {
+  resetPasswordByPhone,
+  sendPasswordResetEmail,
+} from '@/features/auth/api'
 import {
   forgotPasswordFormSchema,
   PASSWORD_RESET_COUNTDOWN,
+  phoneResetFormSchema,
 } from '@/features/auth/constants'
+import { useAliyunCaptcha } from '@/features/auth/hooks/use-aliyun-captcha'
+import { useSMSVerification } from '@/features/auth/hooks/use-sms-verification'
 import { useTurnstile } from '@/features/auth/hooks/use-turnstile'
 import { useCountdown } from '@/hooks/use-countdown'
+import { useStatus } from '@/hooks/use-status'
 import { cn } from '@/lib/utils'
+
+type ForgotPasswordFormProps = React.HTMLAttributes<HTMLFormElement> & {
+  resetMode: 'email' | 'phone'
+  onResetModeChange: (mode: 'email' | 'phone') => void
+}
 
 export function ForgotPasswordForm({
   className,
+  resetMode,
+  onResetModeChange,
   ...props
-}: React.HTMLAttributes<HTMLFormElement>) {
+}: ForgotPasswordFormProps) {
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
+
+  const { status } = useStatus()
+  const phoneResetEnabled = !!status?.phone_verification
 
   const {
     isTurnstileEnabled,
@@ -63,21 +81,41 @@ export function ForgotPasswordForm({
     isActive,
     start: startCountdown,
   } = useCountdown({ initialSeconds: PASSWORD_RESET_COUNTDOWN })
+  const { getCaptchaVerifyParam } = useAliyunCaptcha()
+  const {
+    isSending: isSendingSMS,
+    secondsLeft: smsSecondsLeft,
+    isActive: smsIsActive,
+    sendCode: sendSMS,
+  } = useSMSVerification({
+    turnstileToken,
+    validateTurnstile,
+    getCaptchaVerifyParam,
+  })
 
-  const form = useForm<z.infer<typeof forgotPasswordFormSchema>>({
+  const emailForm = useForm<z.infer<typeof forgotPasswordFormSchema>>({
     resolver: zodResolver(forgotPasswordFormSchema),
     defaultValues: { email: '' },
   })
-  const turnstileReady = !isTurnstileEnabled || Boolean(turnstileToken)
 
-  async function onSubmit(data: z.infer<typeof forgotPasswordFormSchema>) {
+  const phoneForm = useForm<z.infer<typeof phoneResetFormSchema>>({
+    resolver: zodResolver(phoneResetFormSchema),
+    defaultValues: { phone: '', code: '', password: '', confirmPassword: '' },
+  })
+
+  const turnstileReady = !isTurnstileEnabled || Boolean(turnstileToken)
+  const phoneValue = phoneForm.watch('phone')
+
+  async function onEmailSubmit(
+    data: z.infer<typeof forgotPasswordFormSchema>
+  ) {
     if (!validateTurnstile()) return
 
     setIsLoading(true)
     try {
       const res = await sendPasswordResetEmail(data.email, turnstileToken)
       if (res?.success) {
-        form.reset()
+        emailForm.reset()
         startCountdown()
         toast.success(t('Reset email sent, please check your inbox'))
       } else {
@@ -90,47 +128,219 @@ export function ForgotPasswordForm({
     }
   }
 
+  async function onPhoneSubmit(data: z.infer<typeof phoneResetFormSchema>) {
+    if (!validateTurnstile()) return
+
+    setIsLoading(true)
+    try {
+      const res = await resetPasswordByPhone({
+        phone: data.phone,
+        code: data.code,
+        password: data.password,
+        turnstile: turnstileToken,
+      })
+      if (res?.success) {
+        phoneForm.reset()
+        toast.success(
+          t('Password reset successful, please sign in with your new password')
+        )
+      } else {
+        toast.error(res?.message || t('Failed to reset password'))
+      }
+    } catch (_error) {
+      // Errors are handled by global interceptor
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('grid gap-2', className)}
-        {...props}
-      >
-        <FormField
-          control={form.control}
-          name='email'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder='name@example.com' {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div
+      className={cn('grid gap-2', className)}
+      {...(props as React.HTMLAttributes<HTMLDivElement>)}
+    >
+      {/* Reset mode toggle */}
+      {phoneResetEnabled && (
+        <div className='grid grid-cols-2 gap-1 rounded-lg bg-muted p-1'>
+          <button
+            type='button'
+            onClick={() => onResetModeChange('email')}
+            className={cn(
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              resetMode === 'email'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t('Reset via email')}
+          </button>
+          <button
+            type='button'
+            onClick={() => onResetModeChange('phone')}
+            className={cn(
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              resetMode === 'phone'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t('Reset via SMS')}
+          </button>
+        </div>
+      )}
 
-        <Button
-          type='submit'
-          className='mt-2'
-          disabled={isLoading || isActive || !turnstileReady}
-        >
-          {isActive
-            ? t('Resend ({{seconds}}s)', { seconds: secondsLeft })
-            : t('Send reset email')}
-          {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
-        </Button>
-
-        {isTurnstileEnabled && (
-          <div className='mt-2'>
-            <Turnstile
-              siteKey={turnstileSiteKey}
-              onVerify={setTurnstileToken}
+      {resetMode === 'email' && (
+        <Form {...emailForm}>
+          <form
+            onSubmit={emailForm.handleSubmit(onEmailSubmit)}
+            className='grid gap-2'
+          >
+            <FormField
+              control={emailForm.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder='name@example.com' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        )}
-      </form>
-    </Form>
+
+            <Button
+              type='submit'
+              className='mt-2'
+              disabled={isLoading || isActive || !turnstileReady}
+            >
+              {isActive
+                ? t('Resend ({{seconds}}s)', { seconds: secondsLeft })
+                : t('Send reset email')}
+              {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
+            </Button>
+          </form>
+        </Form>
+      )}
+
+      {phoneResetEnabled && resetMode === 'phone' && (
+        <Form {...phoneForm}>
+          <form
+            onSubmit={phoneForm.handleSubmit(onPhoneSubmit)}
+            className='grid gap-2'
+          >
+            {/* Phone Field */}
+            <FormField
+              control={phoneForm.control}
+              name='phone'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Phone number')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder={t('Enter phone number')}
+                      type='tel'
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* SMS Code Field */}
+            <FormField
+              control={phoneForm.control}
+              name='code'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('SMS verification code')}</FormLabel>
+                  <div className='flex items-center gap-2'>
+                    <FormControl>
+                      <Input
+                        placeholder={t('SMS verification code')}
+                        {...field}
+                      />
+                    </FormControl>
+                    <Button
+                      variant='outline'
+                      type='button'
+                      disabled={
+                        isLoading ||
+                        isSendingSMS ||
+                        smsIsActive ||
+                        !phoneValue ||
+                        !turnstileReady
+                      }
+                      onClick={() => sendSMS(phoneValue || '')}
+                    >
+                      {smsIsActive ? (
+                        t('Resend ({{seconds}}s)', { seconds: smsSecondsLeft })
+                      ) : isSendingSMS ? (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                      ) : (
+                        t('Send SMS')
+                      )}
+                    </Button>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* New Password Field */}
+            <FormField
+              control={phoneForm.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('New password')}</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder={t('Enter password (8-20 characters)')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Confirm Password Field */}
+            <FormField
+              control={phoneForm.control}
+              name='confirmPassword'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('Confirm password')}</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder={t('Confirm password')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type='submit'
+              className='mt-2'
+              disabled={isLoading || !turnstileReady}
+            >
+              {t('Reset password')}
+              {isLoading ? <Loader2 className='animate-spin' /> : <ArrowRight />}
+            </Button>
+          </form>
+        </Form>
+      )}
+
+      {isTurnstileEnabled && (
+        <div className='mt-2'>
+          <Turnstile siteKey={turnstileSiteKey} onVerify={setTurnstileToken} />
+        </div>
+      )}
+    </div>
   )
 }

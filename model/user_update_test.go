@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/dto"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

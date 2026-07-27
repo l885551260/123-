@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
-Modified by aytdai for phone/SMS registration feature (AGPLv3).
+Copyright (C) 2023-2026 Project Contributors
+Modified for phone/SMS registration feature (AGPLv3).
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -19,6 +19,7 @@ import { SMS_VERIFICATION_COUNTDOWN } from '../constants'
 interface UseSMSVerificationOptions {
   turnstileToken?: string
   validateTurnstile?: () => boolean
+  getCaptchaVerifyParam?: () => Promise<string>
 }
 
 /**
@@ -46,9 +47,21 @@ export function useSMSVerification(options?: UseSMSVerificationOptions) {
       return false
     }
 
+    // Aliyun Captcha 2.0 human verification (AGPLv3): pop the captcha
+    // and obtain the single-use verify param before requesting the SMS code.
+    let captchaVerifyParam = ''
+    if (options?.getCaptchaVerifyParam) {
+      try {
+        captchaVerifyParam = await options.getCaptchaVerifyParam()
+      } catch (_error) {
+        // User dismissed the captcha or it failed / timed out; abort silently.
+        return false
+      }
+    }
+
     setIsSending(true)
     try {
-      const res = await sendSMSCode(phone, options?.turnstileToken)
+      const res = await sendSMSCode(phone, options?.turnstileToken, captchaVerifyParam)
       if (res?.success) {
         startCountdown()
         toast.success(i18next.t('Verification code sent'))

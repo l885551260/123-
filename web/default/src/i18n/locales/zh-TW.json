@@ -1695,6 +1695,7 @@
         "Enter your email": "輸入您的電郵",
         "Enter your redemption code": "輸入您的兌換碼",
         "Enter your registered email and we will send you a link to reset your password.": "輸入您註冊的電郵，我們將向您發送一個重設密碼的連結。",
+        "Enter your registered phone number and we will help you reset your password.": "輸入您註冊的手機號，我們將幫您重設密碼。",
         "Enter your username": "輸入您的用戶名",
         "Enter your username or email": "輸入您的用戶名或電郵",
         "Enterprise Account": "企業用戶",
@@ -5185,6 +5186,12 @@
         "Send SMS": "發送簡訊",
         "Please enter your phone number": "請輸入手機號碼",
         "Please enter the SMS verification code": "請輸入簡訊驗證碼",
-        "Verification code sent": "驗證碼已發送"
+        "Verification code sent": "驗證碼已發送",
+        "Password login": "密碼登入",
+        "SMS code login": "驗證碼登入",
+        "Reset via email": "信箱找回",
+        "Reset via SMS": "簡訊找回",
+        "Failed to reset password": "重置密碼失敗",
+        "Password reset successful, please sign in with your new password": "密碼重置成功，請使用新密碼登入"
     }
 }

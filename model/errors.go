@@ -17,6 +17,9 @@ var (
 	// ErrPhoneAlreadyTaken is returned by EnsurePhoneAvailable when the
 	// requested phone number is already associated with another user.
 	ErrPhoneAlreadyTaken = errors.New("phone already taken")
+	// ErrPhoneNotFound is returned by GetUserByPhone when no non-deleted
+	// user owns the given phone number.
+	ErrPhoneNotFound = errors.New("phone not found")
 )
 
 // Token auth errors

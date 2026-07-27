@@ -3,8 +3,9 @@ package controller
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/setting"
+	"github.com/Project Contributors/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/common"
 )
 
 func isPaymentComplianceConfirmed() bool {
@@ -95,6 +96,10 @@ func isWaffoPancakeWebhookEnabled() bool {
 func isEpayTopUpEnabled() bool {
 	if !isPaymentComplianceConfirmed() {
 		return false
+	}
+	// Return true if EPay is configured OR if Alipay/WxPay direct is enabled
+	if common.AlipayEnabled || common.WxPayEnabled {
+		return true
 	}
 	return isEpayWebhookConfigured() && len(operation_setting.PayMethods) > 0
 }

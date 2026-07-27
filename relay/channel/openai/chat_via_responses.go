@@ -8,14 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/relay/helper"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/service/relayconvert"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/dto"
+	"github.com/Project Contributors/new-api/logger"
+	relaycommon "github.com/Project Contributors/new-api/relay/common"
+	"github.com/Project Contributors/new-api/relay/helper"
+	"github.com/Project Contributors/new-api/service"
+	"github.com/Project Contributors/new-api/service/relayconvert"
+	"github.com/Project Contributors/new-api/types"
 
 	"github.com/gin-gonic/gin"
 )
@@ -217,7 +217,7 @@ func OaiResponsesToChatStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 			streamErr = types.NewOpenAIError(err, types.ErrorCodeJsonMarshalFailed, http.StatusInternalServerError)
 			return false
 		}
-		c.Render(-1, common.CustomEvent{Data: "data: " + string(geminiResponseStr)})
+		c.Render(-1, &common.CustomEvent{Data: "data: " + string(geminiResponseStr)})
 		_ = helper.FlushWriter(c)
 		return true
 	}

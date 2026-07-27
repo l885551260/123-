@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -232,5 +232,29 @@ export async function completeOrder(
   request: CompleteOrderRequest
 ): Promise<ApiResponse> {
   const res = await api.post('/api/user/topup/complete', request)
+  return res.data
+}
+
+/**
+ * Request Alipay native payment (direct connection)
+ */
+export async function requestAlipayNativePayment(
+  request: PaymentRequest
+): Promise<NativePaymentResponse> {
+  const res = await api.post('/api/user/alipay/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
+  return res.data
+}
+
+/**
+ * Request WeChat Pay native payment (direct connection)
+ */
+export async function requestWxPayNativePayment(
+  request: PaymentRequest
+): Promise<NativePaymentResponse> {
+  const res = await api.post('/api/user/wxpay/pay', request, {
+    skipBusinessError: true,
+  } as Record<string, unknown>)
   return res.data
 }

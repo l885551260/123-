@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/dto"
+	"github.com/Project Contributors/new-api/dto"
 )
 
 const (

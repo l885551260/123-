@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/QuantumNous/new-api/constant"
+	"github.com/Project Contributors/new-api/constant"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

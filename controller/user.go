@@ -10,17 +10,17 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/service/authz"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/dto"
+	"github.com/Project Contributors/new-api/i18n"
+	"github.com/Project Contributors/new-api/logger"
+	"github.com/Project Contributors/new-api/model"
+	"github.com/Project Contributors/new-api/service"
+	"github.com/Project Contributors/new-api/service/authz"
+	"github.com/Project Contributors/new-api/setting"
+	"github.com/Project Contributors/new-api/setting/operation_setting"
 
-	"github.com/QuantumNous/new-api/constant"
+	"github.com/Project Contributors/new-api/constant"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -36,6 +36,40 @@ var (
 	errUserPasswordUnset    = errors.New("user password is not set")
 	errOriginalPasswordFail = errors.New("original password is incorrect")
 )
+
+// completeLogin finishes a successful authentication shared by every login
+// method. When two-factor authentication is enabled for the user it stores a
+// pending session and instructs the client to provide the second factor;
+// otherwise it establishes the login session directly.
+func completeLogin(c *gin.Context, user *model.User) {
+	// 检查是否启用2FA
+	twoFAEnabled, err := model.IsTwoFAEnabled(user.Id)
+	if err != nil {
+		common.SysLog(fmt.Sprintf("completeLogin failed to load 2FA status for user %d: %v", user.Id, err))
+		common.ApiErrorI18n(c, i18n.MsgDatabaseError)
+		return
+	}
+	if twoFAEnabled {
+		// 设置pending session，等待2FA验证
+		session := sessions.Default(c)
+		session.Set("pending_username", user.Username)
+		session.Set("pending_user_id", user.Id)
+		if err := session.Save(); err != nil {
+			common.ApiErrorI18n(c, i18n.MsgUserSessionSaveFailed)
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": i18n.T(c, i18n.MsgUserRequire2FA),
+			"success": true,
+			"data": map[string]interface{}{
+				"require_2fa": true,
+			},
+		})
+		return
+	}
+
+	setupLogin(user, c)
+}
 
 func Login(c *gin.Context) {
 	if !common.PasswordLoginEnabled {
@@ -72,35 +106,60 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 检查是否启用2FA
-	twoFAEnabled, err := model.IsTwoFAEnabled(user.Id)
+	completeLogin(c, &user)
+}
+
+// PhoneLoginRequest is the payload for SMS-code login.
+type PhoneLoginRequest struct {
+	Phone string `json:"phone"`
+	Code  string `json:"code"`
+}
+
+// LoginByPhone authenticates a user with a phone number plus an SMS
+// verification code (no password). It mirrors the password Login flow but
+// proves identity through ownership of the bound phone number. Added by
+// Under AGPLv3.
+func LoginByPhone(c *gin.Context) {
+	if !common.PhoneVerificationEnabled {
+		common.ApiErrorI18n(c, i18n.MsgFeatureDisabled)
+		return
+	}
+	var req PhoneLoginRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	req.Phone = model.NormalizePhone(req.Phone)
+	if req.Phone == "" || req.Code == "" {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	if !common.IsValidPhone(req.Phone) {
+		common.ApiErrorI18n(c, i18n.MsgSMSInvalidPhone)
+		return
+	}
+	if !common.VerifyCodeWithKey(req.Phone, req.Code, common.SMSVerificationPurpose) {
+		common.ApiErrorI18n(c, i18n.MsgUserPhoneVerificationCodeError)
+		return
+	}
+	user, err := model.GetUserByPhone(req.Phone)
 	if err != nil {
-		common.SysLog(fmt.Sprintf("Login failed to load 2FA status for user %d: %v", user.Id, err))
+		if errors.Is(err, model.ErrPhoneNotFound) {
+			common.ApiErrorI18n(c, i18n.MsgUserPhoneNotFound)
+			return
+		}
+		common.SysLog(fmt.Sprintf("LoginByPhone database error for phone %s: %v", req.Phone, err))
 		common.ApiErrorI18n(c, i18n.MsgDatabaseError)
 		return
 	}
-	if twoFAEnabled {
-		// 设置pending session，等待2FA验证
-		session := sessions.Default(c)
-		session.Set("pending_username", user.Username)
-		session.Set("pending_user_id", user.Id)
-		err := session.Save()
-		if err != nil {
-			common.ApiErrorI18n(c, i18n.MsgUserSessionSaveFailed)
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"message": i18n.T(c, i18n.MsgUserRequire2FA),
-			"success": true,
-			"data": map[string]interface{}{
-				"require_2fa": true,
-			},
-		})
+	if user.Status != common.UserStatusEnabled {
+		common.ApiErrorI18n(c, i18n.MsgUserUsernameOrPasswordError)
 		return
 	}
+	// Consume the code so it cannot be replayed.
+	common.DeleteKey(req.Phone, common.SMSVerificationPurpose)
 
-	setupLogin(&user, c)
+	completeLogin(c, user)
 }
 
 // loginMethodFromContext 根据请求路径推导登录方式，用于登录审计日志。
@@ -108,6 +167,8 @@ func loginMethodFromContext(c *gin.Context) string {
 	switch c.FullPath() {
 	case "/api/user/login":
 		return "password"
+	case "/api/user/login/phone":
+		return "phone"
 	case "/api/user/login/2fa":
 		return "2fa"
 	case "/api/user/passkey/login/finish":
@@ -305,7 +366,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Audit: record phone registration event (aytdai, AGPLv3)
+	// Audit: record phone registration event (AGPLv3)
 	if common.PhoneVerificationEnabled && req.Phone != "" {
 		model.RecordPhoneAction(req.Phone, insertedUser.Id, insertedUser.Username, model.PhoneActionRegister, c.ClientIP(), c.Request.UserAgent(), "", "success", "")
 	}

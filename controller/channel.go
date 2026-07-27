@@ -4,21 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/model"
-	relaychannel "github.com/QuantumNous/new-api/relay/channel"
-	"github.com/QuantumNous/new-api/relay/channel/gemini"
-	"github.com/QuantumNous/new-api/relay/channel/ollama"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/service/authz"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/constant"
+	"github.com/Project Contributors/new-api/dto"
+	"github.com/Project Contributors/new-api/i18n"
+	"github.com/Project Contributors/new-api/model"
+	relaychannel "github.com/Project Contributors/new-api/relay/channel"
+	"github.com/Project Contributors/new-api/relay/channel/gemini"
+	"github.com/Project Contributors/new-api/relay/channel/ollama"
+	"github.com/Project Contributors/new-api/service"
+	"github.com/Project Contributors/new-api/service/authz"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -1242,10 +1243,11 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 	//check status code
+	bodyBytes, _ := io.ReadAll(response.Body)
 	if response.StatusCode != http.StatusOK {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to fetch models",
+			"message": fmt.Sprintf("upstream HTTP %d: %s", response.StatusCode, string(bodyBytes)),
 		})
 		return
 	}

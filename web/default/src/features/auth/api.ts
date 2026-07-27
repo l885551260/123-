@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,8 @@ import type {
   Login2FAResponse,
   TwoFAPayload,
   RegisterPayload,
+  PhoneLoginPayload,
+  PhoneResetPayload,
   ApiResponse,
 } from './types'
 
@@ -54,6 +56,19 @@ export async function login2fa(payload: TwoFAPayload) {
   return res.data
 }
 
+// User login with phone number and SMS verification code (passwordless)
+export async function loginByPhone(payload: PhoneLoginPayload) {
+  const turnstile = payload.turnstile ?? ''
+  const res = await api.post<LoginResponse>(
+    `/api/user/login/phone?turnstile=${turnstile}`,
+    {
+      phone: payload.phone,
+      code: payload.code,
+    }
+  )
+  return res.data
+}
+
 // User logout
 export async function logout(): Promise<ApiResponse> {
   const res = await api.get('/api/user/logout')
@@ -72,6 +87,22 @@ export async function sendPasswordResetEmail(
   const res = await api.get('/api/reset_password', {
     params: { email, turnstile },
   })
+  return res.data
+}
+
+// Reset password with phone number and SMS verification code
+export async function resetPasswordByPhone(
+  payload: PhoneResetPayload
+): Promise<ApiResponse> {
+  const turnstile = payload.turnstile ?? ''
+  const res = await api.post(
+    `/api/user/reset_phone?turnstile=${turnstile}`,
+    {
+      phone: payload.phone,
+      code: payload.code,
+      password: payload.password,
+    }
+  )
   return res.data
 }
 
@@ -126,9 +157,13 @@ export async function sendEmailVerification(
 // Send SMS verification code
 export async function sendSMSCode(
   phone: string,
-  turnstile?: string
+  turnstile?: string,
+  captchaVerifyParam?: string
 ): Promise<ApiResponse> {
-  const res = await api.post('/api/sms/send', { phone }, {
+  const res = await api.post('/api/sms/send', {
+    phone,
+    captcha_verify_param: captchaVerifyParam ?? '',
+  }, {
     params: { turnstile },
   })
   return res.data

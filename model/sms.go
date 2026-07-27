@@ -1,4 +1,4 @@
-// Modified by aytdai on 2026-07-18 under AGPLv3
+// Modified on 2026-07-18 by project contributor under AGPLv3
 // Phone/SMS registration feature — phone availability check (mirror of
 // EnsureEmailAvailable / IsEmailAvailable). These helpers are invoked by
 // the register controller before inserting a new user so the same
@@ -7,9 +7,12 @@
 package model
 
 import (
+	"errors"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
+	"github.com/Project Contributors/new-api/common"
+
+	"gorm.io/gorm"
 )
 
 // NormalizePhone trims whitespace and returns the canonical phone string.
@@ -89,4 +92,43 @@ func InitPhoneIndex() error {
 	}
 	common.SysLog("InitPhoneIndex: partial unique index ensured on users.phone")
 	return nil
+}
+
+// GetUserByPhone returns the unique non-deleted user that owns the given
+// phone number. It mirrors GetUniqueUserByEmail but for the phone channel
+// and is used by SMS-code login and phone-based password reset. Because
+// users.phone carries a partial unique index (see InitPhoneIndex), at most
+// one row can match a non-empty phone.
+func GetUserByPhone(phone string) (*User, error) {
+	phone = NormalizePhone(phone)
+	if phone == "" {
+		return nil, ErrPhoneNotFound
+	}
+	var user User
+	err := DB.Where("phone = ?", phone).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrPhoneNotFound
+		}
+		return nil, err
+	}
+	return &user, nil
+}
+
+// ResetUserPasswordByPhone sets a new password for the user that owns the
+// given phone number. It mirrors ResetUserPasswordByEmail for the phone
+// channel and is invoked by the SMS-code password reset flow.
+func ResetUserPasswordByPhone(phone string, password string) error {
+	if phone == "" || password == "" {
+		return errors.New("手机号或密码为空！")
+	}
+	user, err := GetUserByPhone(phone)
+	if err != nil {
+		return err
+	}
+	hashedPassword, err := common.Password2Hash(password)
+	if err != nil {
+		return err
+	}
+	return DB.Model(&User{}).Where("id = ?", user.Id).Update("password", hashedPassword).Error
 }

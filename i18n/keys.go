@@ -88,13 +88,16 @@ const (
 	MsgUserVerificationCodeError     = "user.verification_code_error"
 	MsgUserEmailAlreadyTaken         = "user.email_already_taken"
 
-	// SMS / phone verification keys (added by aytdai, AGPLv3)
+	// SMS / phone verification keys (AGPLv3 modification)
 	MsgUserPhoneAlreadyTaken            = "user.phone_already_taken"
 	MsgUserPhoneVerificationRequired    = "user.phone_verification_required"
 	MsgUserPhoneVerificationCodeError   = "user.phone_verification_code_error"
+	MsgUserPhoneNotFound                = "user.phone_not_found"
+	MsgUserPasswordInvalid              = "user.password_invalid"
 	MsgSMSRateLimit                     = "sms.rate_limit"
 	MsgSMSInvalidPhone                  = "sms.invalid_phone"
 	MsgSMSSendFailed                    = "sms.send_failed"
+	MsgSMSCaptchaFailed                 = "sms.captcha_failed"
 	MsgUserPasswordUnset             = "user.password_unset"
 	MsgUserPasswordResetLinkInvalid  = "user.password_reset_link_invalid"
 	MsgUserInputInvalid              = "user.input_invalid"
@@ -164,6 +167,10 @@ const (
 	MsgPaymentPriceIdNotConfig   = "payment.price_id_not_configured"
 	MsgPaymentCreemNotConfig     = "payment.creem_not_configured"
 	MsgPaymentComplianceRequired = "payment.compliance_required"
+	MsgPaymentAlipayDisabled  = "payment.alipay_disabled"
+	MsgPaymentWxPayDisabled   = "payment.wxpay_disabled"
+	MsgPaymentMinTopup        = "payment.min_topup"
+	MsgPaymentGetGroupFailed  = "payment.get_group_failed"
 )
 
 // Topup related messages

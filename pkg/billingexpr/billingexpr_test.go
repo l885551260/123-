@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/QuantumNous/new-api/pkg/billingexpr"
+	"github.com/Project Contributors/new-api/pkg/billingexpr"
 )
 
 // ---------------------------------------------------------------------------

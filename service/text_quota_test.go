@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/dto"
-	"github.com/QuantumNous/new-api/pkg/billingexpr"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/constant"
+	"github.com/Project Contributors/new-api/dto"
+	"github.com/Project Contributors/new-api/pkg/billingexpr"
+	relaycommon "github.com/Project Contributors/new-api/relay/common"
+	"github.com/Project Contributors/new-api/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"

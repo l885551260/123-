@@ -1695,6 +1695,7 @@
         "Enter your email": "输入您的电子邮件",
         "Enter your redemption code": "输入您的兑换码",
         "Enter your registered email and we will send you a link to reset your password.": "输入您注册的邮箱，我们将向您发送一个重置密码的链接。",
+        "Enter your registered phone number and we will help you reset your password.": "输入您注册的手机号，我们将帮您重置密码。",
         "Enter your username": "输入您的用户名",
         "Enter your username or email": "输入您的用户名或电子邮件",
         "Enterprise Account": "企业账户",
@@ -3495,6 +3496,7 @@
         "Priority order for automatic group assignment. New tokens rotate through this list.": "自动分组分配的优先级顺序。新 token 将按此列表轮换。",
         "Priority order for tokens in the auto group. The system tries groups from top to bottom.": "auto 分组令牌的优先顺序。系统会从上到下依次尝试各分组。",
         "Privacy Policy": "隐私政策",
+        "Source Code": "源代码",
         "Private Deployment URL": "私有部署 URL",
         "Processing OAuth response...": "正在处理 OAuth 响应...",
         "Processing...": "处理中...",
@@ -5185,6 +5187,12 @@
         "Send SMS": "发送短信",
         "Please enter your phone number": "请输入手机号码",
         "Please enter the SMS verification code": "请输入短信验证码",
-        "Verification code sent": "验证码已发送"
+        "Verification code sent": "验证码已发送",
+        "Password login": "密码登录",
+        "SMS code login": "验证码登录",
+        "Reset via email": "邮箱找回",
+        "Reset via SMS": "短信找回",
+        "Failed to reset password": "重置密码失败",
+        "Password reset successful, please sign in with your new password": "密码重置成功，请使用新密码登录"
     }
 }

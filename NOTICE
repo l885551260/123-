@@ -1,7 +1,7 @@
 new-api Notices
 
 new-api
-Copyright (c) QuantumNous and contributors.
+Copyright (c) Project Contributors and contributors.
 
 This project is licensed under the GNU Affero General Public License v3.0.
 See LICENSE for the full project license terms.
@@ -19,7 +19,7 @@ Modified versions that present a user interface must also preserve a visible
 link to the original project in a prominent about, legal, footer, or
 attribution location:
 
-https://github.com/QuantumNous/new-api
+https://github.com/l885551260/123-
 
 Modified versions must not misrepresent the origin of the software and must
 mark their changes in accordance with AGPLv3 Section 7(c).
@@ -47,7 +47,7 @@ otp
 Copyright (c) 2014, Paul Querna
 
 This product includes software developed by
-Paul Querna (http://paul.querna.org/).
+Paul Querna (http://paulquerna.org/).
 
 ==== Electron / Chromium Notices ====
 
@@ -56,3 +56,112 @@ and other third-party components. Electron and Chromium third-party license
 notices must remain available with desktop installers and installed apps.
 
 ==== End of Notices ====
+
+
+==== Modifications Notice (AGPLv3 Section 7(c)) ====
+
+This is a modified version of the original new-api software.
+The following modifications have been made:
+
+Date: 2026-07-21 to 2026-07-25
+Modified by: Project Contributors
+
+--- Backend (Go) ---
+
+1. common/custom-event.go
+   - Changed CustomEvent method receivers from value to pointer
+   - Fixed sync.Mutex value copy issue (go vet compliance)
+
+2. middleware/cors.go
+   - Removed AllowCredentials setting for security
+   - AllowAllOrigins with credentials is a CORS misconfiguration
+
+3. relay/helper/common.go, relay/channel/*/
+   - Updated CustomEvent usage to pointer references
+
+4. common/captcha_aliyun.go (new file)
+   - Aliyun Captcha 2.0 human verification integration
+
+5. common/sms.go, common/sms_aliyun.go, common/sms_limit.go (new/modified)
+   - SMS registration and verification via Aliyun SMS service
+   - Phone number-based registration with rate limiting
+
+6. model/sms.go (new file)
+   - SMS send record model and database operations
+
+7. model/phone_registry.go (new file)
+   - Phone number registration tracking model
+
+8. model/option.go
+   - Added SMS configuration options (provider, credentials, templates)
+   - Added Aliyun Captcha 2.0 configuration options
+
+9. model/errors.go
+   - Added error definitions for SMS and phone verification flows
+
+10. model/topup.go
+    - Updated top-up related constants
+
+11. controller/user.go
+    - Added phone-based SMS login (LoginByPhone)
+    - Added SMS-code password reset flow
+    - Added phone registration audit logging
+
+12. controller/misc.go
+    - Added SMS verification code sending endpoint
+    - Added Aliyun Captcha 2.0 server-side verification
+    - Added SMS send audit logging
+
+13. controller/channel.go
+    - Added baseURL validation in FetchModels function
+
+14. controller/payment_webhook_availability.go
+    - Payment webhook handling improvements
+
+15. router/api-router.go
+    - Added SMS verification and phone reset API routes
+    - Added phone login route with rate limiting
+
+16. i18n/keys.go, i18n/locales/*.yaml
+    - Added i18n keys for SMS/phone verification features
+
+17. setting/operation_setting/payment_setting.go
+    - Payment configuration updates (Alipay, WeChat Pay native integration)
+
+18. go.mod, go.sum
+    - Added dependencies for Aliyun SDK, SMS, and payment features
+
+19. common/constants.go
+    - Added constants for SMS limits, captcha config, phone verification
+
+--- Frontend (TypeScript/React) ---
+
+20. web/default/src/components/layout/components/footer.tsx
+    - Added Source Code link for AGPL Section 13 compliance
+
+21. web/default/src/i18n/locales/zh.json, zh-TW.json, en.json
+    - Added translations for Source Code link and SMS features
+
+22. web/default/src/features/auth/* (multiple files)
+    - Phone/SMS registration form components
+    - SMS verification code input and countdown timer
+    - Aliyun Captcha 2.0 integration hooks
+    - Phone-based login and password reset forms
+
+23. web/default/src/features/wallet/* (multiple files)
+    - Alipay and WeChat Pay native payment UI
+    - Payment method selection and recharge flow
+
+24. web/default/src/features/home/components/sections/hero.tsx
+    - Added "View Pricing" button for authenticated users
+
+25. web/default/src/features/auth/types.ts, constants.ts, api.ts
+    - Auth type definitions, constants, and API functions for phone/SMS
+
+26. web/default/public/favicon.ico, logo.png
+    - Custom branding assets
+
+Original project: https://github.com/l885551260/123-
+License: GNU Affero General Public License v3.0
+
+==== End of Modifications Notice ====

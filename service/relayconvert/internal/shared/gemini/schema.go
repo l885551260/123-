@@ -3,7 +3,7 @@ package gemini
 import (
 	"strings"
 
-	"github.com/QuantumNous/new-api/dto"
+	"github.com/Project Contributors/new-api/dto"
 )
 
 var geminiOpenAPISchemaAllowedFields = map[string]struct{}{

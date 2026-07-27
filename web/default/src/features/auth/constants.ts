@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -48,6 +48,27 @@ export const forgotPasswordFormSchema = z.object({
     message: 'Please enter a valid email address',
   }),
 })
+
+export const phoneLoginFormSchema = z.object({
+  phone: z.string().min(1, 'Please enter your phone number'),
+  code: z.string().min(1, 'Please enter the SMS verification code'),
+})
+
+export const phoneResetFormSchema = z
+  .object({
+    phone: z.string().min(1, 'Please enter your phone number'),
+    code: z.string().min(1, 'Please enter the SMS verification code'),
+    password: z
+      .string()
+      .min(1, 'Please enter your password')
+      .min(8, 'Password must be between 8 and 20 characters')
+      .max(20, 'Password must be at most 20 characters long'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ['confirmPassword'],
+  })
 
 export const otpFormSchema = z.object({
   otp: z.string().min(1, 'Please enter a code.'),

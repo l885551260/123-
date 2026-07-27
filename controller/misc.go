@@ -7,17 +7,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/constant"
-	"github.com/QuantumNous/new-api/i18n"
-	"github.com/QuantumNous/new-api/logger"
-	"github.com/QuantumNous/new-api/middleware"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/oauth"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/console_setting"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/constant"
+	"github.com/Project Contributors/new-api/i18n"
+	"github.com/Project Contributors/new-api/logger"
+	"github.com/Project Contributors/new-api/middleware"
+	"github.com/Project Contributors/new-api/model"
+	"github.com/Project Contributors/new-api/oauth"
+	"github.com/Project Contributors/new-api/setting"
+	"github.com/Project Contributors/new-api/setting/console_setting"
+	"github.com/Project Contributors/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/setting/system_setting"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,6 +73,9 @@ func GetStatus(c *gin.Context) {
 		"server_address":              system_setting.ServerAddress,
 		"turnstile_check":             common.TurnstileCheckEnabled,
 		"turnstile_site_key":          common.TurnstileSiteKey,
+		"aliyun_captcha_enabled":      common.AliyunCaptchaEnabled,
+		"aliyun_captcha_prefix":       common.AliyunCaptchaPrefix,
+		"aliyun_captcha_scene_id":     common.AliyunCaptchaSceneId,
 		"docs_link":                   operation_setting.GetGeneralSetting().DocsLink,
 		"quota_per_unit":              common.QuotaPerUnit,
 		// 兼容旧前端：保留 display_in_currency，同时提供新的 quota_display_type
@@ -239,14 +242,15 @@ func GetHomePageContent(c *gin.Context) {
 // limiting is enforced at two layers: the per-IP middleware below
 // (CriticalRateLimit) and the per-phone/per-IP counters inside
 // common.SendCodeWithLimitCheck.
-// Modified by aytdai on 2026-07-18 under AGPLv3.
+// Modified on 2026-07-18 by project contributor under AGPLv3.
 func SendSMSCode(c *gin.Context) {
 	if !common.PhoneVerificationEnabled {
 		common.ApiErrorI18n(c, i18n.MsgFeatureDisabled)
 		return
 	}
 	var body struct {
-		Phone string `json:"phone"`
+		Phone              string `json:"phone"`
+		CaptchaVerifyParam string `json:"captcha_verify_param"`
 	}
 	_ = c.ShouldBindJSON(&body)
 	phone := strings.TrimSpace(body.Phone)
@@ -262,6 +266,19 @@ func SendSMSCode(c *gin.Context) {
 		return
 	}
 	ip := c.ClientIP()
+	// Aliyun Captcha 2.0 human verification (AGPLv3): reject the request
+	// unless the client supplied a captcha param that Aliyun confirms as passed.
+	if common.AliyunCaptchaEnabled {
+		ok, verifyErr := common.VerifyAliyunCaptcha(body.CaptchaVerifyParam)
+		if verifyErr != nil {
+			common.SysLog("SendSMSCode captcha verify error: " + verifyErr.Error())
+		}
+		if !ok {
+			model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSFail, ip, c.Request.UserAgent(), common.SMSServiceProvider, "captcha_failed", "")
+			common.ApiErrorI18n(c, i18n.MsgSMSCaptchaFailed)
+			return
+		}
+	}
 	if err := common.SendCodeWithLimitCheck(phone, ip); err != nil {
 		if errors.Is(err, common.ErrSMSRateLimited) {
 			model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSRateLimit, ip, c.Request.UserAgent(), common.SMSServiceProvider, "rate_limited", err.Error())
@@ -278,7 +295,7 @@ func SendSMSCode(c *gin.Context) {
 		return
 	}
 
-	// Audit: record successful SMS send (aytdai, AGPLv3)
+	// Audit: record successful SMS send (AGPLv3)
 	model.RecordPhoneAction(phone, 0, "", model.PhoneActionSMSSend, ip, c.Request.UserAgent(), common.SMSServiceProvider, "success", "")
 
 	c.JSON(http.StatusOK, gin.H{
@@ -418,4 +435,59 @@ func ResetPassword(c *gin.Context) {
 		"data":    password,
 	})
 	return
+}
+
+// PhonePasswordResetRequest is the payload for SMS-code password reset.
+type PhonePasswordResetRequest struct {
+	Phone    string `json:"phone"`
+	Code     string `json:"code"`
+	Password string `json:"password"`
+}
+
+// ResetPasswordByPhone lets a user set a new password after proving
+// ownership of their bound phone number via an SMS verification code. It
+// mirrors the email-based ResetPassword flow but for the phone channel.
+// Added under AGPLv3.
+func ResetPasswordByPhone(c *gin.Context) {
+	if !common.PhoneVerificationEnabled {
+		common.ApiErrorI18n(c, i18n.MsgFeatureDisabled)
+		return
+	}
+	var req PhonePasswordResetRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	req.Phone = model.NormalizePhone(req.Phone)
+	if req.Phone == "" || req.Code == "" || req.Password == "" {
+		common.ApiErrorI18n(c, i18n.MsgInvalidParams)
+		return
+	}
+	if !common.IsValidPhone(req.Phone) {
+		common.ApiErrorI18n(c, i18n.MsgSMSInvalidPhone)
+		return
+	}
+	if len(req.Password) < 8 || len(req.Password) > 20 {
+		common.ApiErrorI18n(c, i18n.MsgUserPasswordInvalid)
+		return
+	}
+	if !common.VerifyCodeWithKey(req.Phone, req.Code, common.SMSVerificationPurpose) {
+		common.ApiErrorI18n(c, i18n.MsgUserPhoneVerificationCodeError)
+		return
+	}
+	// ResetUserPasswordByPhone returns ErrPhoneNotFound when the phone is not
+	// bound to any account, so no separate existence check is needed here.
+	if err := model.ResetUserPasswordByPhone(req.Phone, req.Password); err != nil {
+		if errors.Is(err, model.ErrPhoneNotFound) {
+			common.ApiErrorI18n(c, i18n.MsgUserPhoneNotFound)
+			return
+		}
+		common.ApiError(c, err)
+		return
+	}
+	common.DeleteKey(req.Phone, common.SMSVerificationPurpose)
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
 }

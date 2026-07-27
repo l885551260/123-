@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -165,4 +165,25 @@ export function mergePresetAmounts(
     value: amount,
     discount: discounts[amount] || 1.0,
   }))
+}
+
+/**
+ * Check if payment method is Alipay Native (direct)
+ */
+export function isAlipayNativePayment(paymentType: string): boolean {
+  return paymentType === PAYMENT_TYPES.ALIPAY_NATIVE
+}
+
+/**
+ * Check if payment method is WeChat Pay Native (direct)
+ */
+export function isWxPayNativePayment(paymentType: string): boolean {
+  return paymentType === PAYMENT_TYPES.WXPAY_NATIVE
+}
+
+/**
+ * Check if payment method is any native payment (Alipay or WeChat direct)
+ */
+export function isNativePayment(paymentType: string): boolean {
+  return isAlipayNativePayment(paymentType) || isWxPayNativePayment(paymentType)
 }

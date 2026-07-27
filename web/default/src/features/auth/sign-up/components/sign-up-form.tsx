@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -42,6 +42,7 @@ import { register, wechatLoginByCode } from '@/features/auth/api'
 import { LegalConsent } from '@/features/auth/components/legal-consent'
 import { OAuthProviders } from '@/features/auth/components/oauth-providers'
 import { registerFormSchema } from '@/features/auth/constants'
+import { useAliyunCaptcha } from '@/features/auth/hooks/use-aliyun-captcha'
 import { useAuthRedirect } from '@/features/auth/hooks/use-auth-redirect'
 import { useEmailVerification } from '@/features/auth/hooks/use-email-verification'
 import { useSMSVerification } from '@/features/auth/hooks/use-sms-verification'
@@ -77,6 +78,7 @@ export function SignUpForm({
     validateTurnstile,
   } = useTurnstile()
   const { redirectToLogin, handleLoginSuccess } = useAuthRedirect()
+  const { getCaptchaVerifyParam } = useAliyunCaptcha()
   const {
     isSending: isSendingCode,
     secondsLeft,
@@ -94,6 +96,7 @@ export function SignUpForm({
   } = useSMSVerification({
     turnstileToken,
     validateTurnstile,
+    getCaptchaVerifyParam,
   })
 
   const form = useForm<z.infer<typeof registerFormSchema>>({

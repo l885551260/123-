@@ -5,13 +5,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/setting"
-	"github.com/QuantumNous/new-api/setting/config"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
-	"github.com/QuantumNous/new-api/setting/performance_setting"
-	"github.com/QuantumNous/new-api/setting/ratio_setting"
-	"github.com/QuantumNous/new-api/setting/system_setting"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/setting"
+	"github.com/Project Contributors/new-api/setting/config"
+	"github.com/Project Contributors/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/setting/performance_setting"
+	"github.com/Project Contributors/new-api/setting/ratio_setting"
+	"github.com/Project Contributors/new-api/setting/system_setting"
 	"gorm.io/gorm"
 )
 
@@ -56,6 +56,11 @@ func InitOptionMap() {
 	common.OptionMap["TelegramOAuthEnabled"] = strconv.FormatBool(common.TelegramOAuthEnabled)
 	common.OptionMap["WeChatAuthEnabled"] = strconv.FormatBool(common.WeChatAuthEnabled)
 	common.OptionMap["TurnstileCheckEnabled"] = strconv.FormatBool(common.TurnstileCheckEnabled)
+	common.OptionMap["AliyunCaptchaEnabled"] = strconv.FormatBool(common.AliyunCaptchaEnabled)
+	common.OptionMap["AliyunCaptchaPrefix"] = common.AliyunCaptchaPrefix
+	common.OptionMap["AliyunCaptchaSceneId"] = common.AliyunCaptchaSceneId
+	common.OptionMap["AliyunCaptchaAccessKeyID"] = ""
+	common.OptionMap["AliyunCaptchaAccessKeySecret"] = ""
 	common.OptionMap["RegisterEnabled"] = strconv.FormatBool(common.RegisterEnabled)
 	common.OptionMap["AutomaticDisableChannelEnabled"] = strconv.FormatBool(common.AutomaticDisableChannelEnabled)
 	common.OptionMap["AutomaticEnableChannelEnabled"] = strconv.FormatBool(common.AutomaticEnableChannelEnabled)
@@ -92,6 +97,19 @@ func InitOptionMap() {
 	common.OptionMap["CustomCallbackAddress"] = ""
 	common.OptionMap["EpayId"] = ""
 	common.OptionMap["EpayKey"] = ""
+	common.OptionMap["AlipayEnabled"] = strconv.FormatBool(common.AlipayEnabled)
+	common.OptionMap["AlipayAppId"] = common.AlipayAppId
+	common.OptionMap["AlipayPrivateKey"] = ""
+	common.OptionMap["AlipayPublicKey"] = ""
+	common.OptionMap["WxPayEnabled"] = strconv.FormatBool(common.WxPayEnabled)
+	common.OptionMap["WxPayAppId"] = common.WxPayAppId
+	common.OptionMap["WxPayMchId"] = common.WxPayMchId
+	common.OptionMap["WxPayAPIv3Key"] = ""
+	common.OptionMap["WxPayCertSerialNo"] = common.WxPayCertSerialNo
+	common.OptionMap["WxPayPrivateKey"] = ""
+	common.OptionMap["WxPayPublicKeyId"] = common.WxPayPublicKeyId
+	common.OptionMap["WxPayPublicKey"] = ""
+
 	common.OptionMap["Price"] = strconv.FormatFloat(operation_setting.Price, 'f', -1, 64)
 	common.OptionMap["USDExchangeRate"] = strconv.FormatFloat(operation_setting.USDExchangeRate, 'f', -1, 64)
 	common.OptionMap["MinTopUp"] = strconv.Itoa(operation_setting.MinTopUp)
@@ -310,6 +328,11 @@ func updateOptionMap(key string, value string) (err error) {
 			common.TelegramOAuthEnabled = boolValue
 		case "TurnstileCheckEnabled":
 			common.TurnstileCheckEnabled = boolValue
+		case "AlipayEnabled":
+			common.AlipayEnabled = boolValue
+		case "WxPayEnabled":
+			common.WxPayEnabled = boolValue
+
 		case "RegisterEnabled":
 			common.RegisterEnabled = boolValue
 		case "EmailDomainRestrictionEnabled":
@@ -380,7 +403,7 @@ func updateOptionMap(key string, value string) (err error) {
 			ratio_setting.SetExposeRatioEnabled(boolValue)
 		}
 	}
-	// --- SMS options (added by aytdai, AGPLv3) ---
+	// --- SMS options (AGPLv3) ---
 	// These keys do NOT end with "Enabled", so they need their own block.
 	if strings.HasPrefix(key, "SMS") {
 		switch key {
@@ -420,6 +443,58 @@ func updateOptionMap(key string, value string) (err error) {
 			}
 		}
 	}
+
+	// --- Aliyun Captcha 2.0 options (AGPLv3) ---
+	if strings.HasPrefix(key, "AliyunCaptcha") {
+		switch key {
+		case "AliyunCaptchaEnabled":
+			common.AliyunCaptchaEnabled = value == "true"
+		case "AliyunCaptchaPrefix":
+			common.AliyunCaptchaPrefix = value
+		case "AliyunCaptchaSceneId":
+			common.AliyunCaptchaSceneId = value
+		case "AliyunCaptchaAccessKeyID":
+			common.AliyunCaptchaAccessKeyID = value
+		case "AliyunCaptchaAccessKeySecret":
+			common.AliyunCaptchaAccessKeySecret = value
+		}
+	}
+	// --- Alipay Direct Payment options ---
+	if strings.HasPrefix(key, "Alipay") {
+		switch key {
+		case "AlipayEnabled":
+			common.AlipayEnabled = value == "true"
+		case "AlipayAppId":
+			common.AlipayAppId = value
+		case "AlipayPrivateKey":
+			common.AlipayPrivateKey = value
+		case "AlipayPublicKey":
+			common.AlipayPublicKey = value
+		}
+	}
+
+	// --- WeChat Pay Direct Payment options ---
+	if strings.HasPrefix(key, "WxPay") {
+		switch key {
+		case "WxPayEnabled":
+			common.WxPayEnabled = value == "true"
+		case "WxPayAppId":
+			common.WxPayAppId = value
+		case "WxPayMchId":
+			common.WxPayMchId = value
+		case "WxPayAPIv3Key":
+			common.WxPayAPIv3Key = value
+		case "WxPayCertSerialNo":
+			common.WxPayCertSerialNo = value
+		case "WxPayPrivateKey":
+			common.WxPayPrivateKey = value
+		case "WxPayPublicKeyId":
+			common.WxPayPublicKeyId = value
+		case "WxPayPublicKey":
+			common.WxPayPublicKey = value
+		}
+	}
+
 
 	switch key {
 	case "EmailDomainWhitelist":

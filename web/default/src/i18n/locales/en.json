@@ -1695,6 +1695,7 @@
         "Enter your email": "Enter your email",
         "Enter your redemption code": "Enter your redemption code",
         "Enter your registered email and we will send you a link to reset your password.": "Enter your registered email and we will send you a link to reset your password.",
+        "Enter your registered phone number and we will help you reset your password.": "Enter your registered phone number and we will help you reset your password.",
         "Enter your username": "Enter your username",
         "Enter your username or email": "Enter your username or email",
         "Enterprise Account": "Enterprise Account",
@@ -5185,6 +5186,12 @@
         "Send SMS": "Send SMS",
         "Please enter your phone number": "Please enter your phone number",
         "Please enter the SMS verification code": "Please enter the SMS verification code",
-        "Verification code sent": "Verification code sent"
+        "Verification code sent": "Verification code sent",
+        "Password login": "Password login",
+        "SMS code login": "SMS code login",
+        "Reset via email": "Reset via email",
+        "Reset via SMS": "Reset via SMS",
+        "Failed to reset password": "Failed to reset password",
+        "Password reset successful, please sign in with your new password": "Password reset successful, please sign in with your new password"
     }
 }

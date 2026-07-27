@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -28,6 +28,7 @@ import { AffiliateRewardsCard } from './components/affiliate-rewards-card'
 import { BillingHistoryDialog } from './components/dialogs/billing-history-dialog'
 import { CreemConfirmDialog } from './components/dialogs/creem-confirm-dialog'
 import { PaymentConfirmDialog } from './components/dialogs/payment-confirm-dialog'
+import { QrcodePaymentDialog } from './components/dialogs/qrcode-payment-dialog'
 import { TransferDialog } from './components/dialogs/transfer-dialog'
 import { RechargeFormCard } from './components/recharge-form-card'
 import { SubscriptionPlansCard } from './components/subscription-plans-card'
@@ -42,10 +43,12 @@ import {
   useWaffoPayment,
   useWaffoPancakePayment,
 } from './hooks'
+import { useNativePayment } from './hooks/use-native-payment'
 import {
   getDefaultPaymentType,
   getMinTopupAmount,
   isWaffoPancakePayment,
+  isNativePayment,
 } from './lib'
 import type {
   UserWalletData,
@@ -93,6 +96,15 @@ export function Wallet(props: WalletProps) {
     calculatePaymentAmount,
     processPayment,
   } = usePayment()
+
+  // Native payment (Alipay/WeChat direct)
+  const {
+    qrCode: nativeQrCode,
+    polling: nativePolling,
+    processNativePayment,
+    reset: resetNativePayment,
+  } = useNativePayment(() => fetchUser())
+
   const {
     affiliateLink,
     loading: affiliateLoading,
@@ -175,6 +187,12 @@ export function Wallet(props: WalletProps) {
         return
       }
 
+      // For native payment, skip confirm dialog and go straight to payment
+      if (isNativePayment(method.type)) {
+        await processNativePayment(topupAmount, method.type)
+        return
+      }
+
       // Calculate payment amount and show confirmation dialog
       await calculatePaymentAmount(topupAmount, method.type)
       setConfirmDialogOpen(true)
@@ -186,6 +204,13 @@ export function Wallet(props: WalletProps) {
   // Handle payment confirmation
   const handlePaymentConfirm = async () => {
     if (!selectedPaymentMethod) return
+
+    // Native payment (Alipay/WeChat direct) - skip confirm dialog, go straight to QR/redirect
+    if (isNativePayment(selectedPaymentMethod.type)) {
+      setConfirmDialogOpen(false)
+      await processNativePayment(topupAmount, selectedPaymentMethod.type)
+      return
+    }
 
     const isPancake = isWaffoPancakePayment(selectedPaymentMethod.type)
     const success = isPancake
@@ -361,6 +386,15 @@ export function Wallet(props: WalletProps) {
         onConfirm={handleCreemConfirm}
         product={selectedCreemProduct}
         processing={creemProcessing}
+      />
+
+      <QrcodePaymentDialog
+        open={!!nativeQrCode}
+        qrCode={nativeQrCode}
+        amount={paymentAmount}
+        paymentLabel={selectedPaymentMethod?.name || '扫码支付'}
+        polling={nativePolling}
+        onClose={resetNativePayment}
       />
     </>
   )

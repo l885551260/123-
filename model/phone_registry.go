@@ -1,4 +1,4 @@
-// Modified by aytdai on 2026-07-18 under AGPLv3
+// Modified on 2026-07-18 by project contributor under AGPLv3
 // Phone registration audit log — records every SMS send and registration
 // event for legal compliance and security auditing.
 

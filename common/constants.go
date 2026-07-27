@@ -143,7 +143,31 @@ var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
 
 // ============================================================================
-// SMS / Phone verification (added by aytdai on 2026-07-18, AGPLv3)
+// Aliyun Captcha 2.0 human verification (added on 2026-07-23 by project contributor, AGPLv3)
+// Protects the "send SMS code" action against bots / SMS-bombing. The frontend
+// pops an Aliyun captcha widget; the backend verifies the returned param via
+// the VerifyIntelligentCaptcha API (see common/captcha_aliyun.go). All values
+// are managed through the option system / admin panel, never hard-coded here.
+// ============================================================================
+
+// AliyunCaptchaEnabled gates the human-verification check on SMS sending.
+var AliyunCaptchaEnabled = false
+
+// AliyunCaptchaPrefix is the identity prefix (身份标) from the Aliyun captcha
+// console; the frontend needs it to initialize the captcha widget.
+var AliyunCaptchaPrefix = ""
+
+// AliyunCaptchaSceneId is the Web/H5 scene id (场景ID) created in the console.
+var AliyunCaptchaSceneId = ""
+
+// Aliyun captcha server-side verification credentials. Must belong to a RAM
+// sub-account holding the AliyunYundunAFSFullAccess policy. Never commit real
+// values to source; set them via the admin panel / database.
+var AliyunCaptchaAccessKeyID = ""
+var AliyunCaptchaAccessKeySecret = ""
+
+// ============================================================================
+// SMS / Phone verification (added on 2026-07-18 by project contributor, AGPLv3)
 // Mainland-China mobile numbers only; see common/sms.go for the dispatcher
 // and common/sms_limit.go for the rate-limiter.
 // ============================================================================
@@ -323,3 +347,25 @@ const (
 	TopUpStatusFailed  = "failed"
 	TopUpStatusExpired = "expired"
 )
+
+// ============================================================================
+// Alipay Direct Payment Configuration
+// ============================================================================
+
+var AlipayEnabled = false
+var AlipayAppId = ""
+var AlipayPrivateKey = ""  // Application private key (RSA2)
+var AlipayPublicKey = ""   // Alipay public key (for notification verification)
+
+// ============================================================================
+// WeChat Pay Direct Payment Configuration
+// ============================================================================
+
+var WxPayEnabled = false
+var WxPayAppId = ""          // WeChat public account/app ID
+var WxPayMchId = ""          // Merchant ID
+var WxPayAPIv3Key = ""       // APIv3 key (32 chars)
+var WxPayCertSerialNo = ""   // Certificate serial number
+var WxPayPrivateKey = ""     // Merchant private key PEM content
+var WxPayPublicKeyId = ""  // WeChat Pay public key ID (PUB_KEY_ID_...)
+var WxPayPublicKey   = ""  // WeChat Pay public key PEM content

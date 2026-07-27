@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/logger"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/logger"
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
@@ -39,6 +39,8 @@ const (
 	PaymentProviderWaffo        = "waffo"
 	PaymentProviderWaffoPancake = "waffo_pancake"
 	PaymentProviderBalance      = "balance"
+	PaymentProviderAlipay       = "alipay"
+	PaymentProviderWxPay        = "wxpay"
 )
 
 var (

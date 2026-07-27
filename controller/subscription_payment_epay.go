@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/Calcium-Ion/go-epay/epay"
-	"github.com/QuantumNous/new-api/common"
-	"github.com/QuantumNous/new-api/model"
-	"github.com/QuantumNous/new-api/service"
-	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/Project Contributors/new-api/common"
+	"github.com/Project Contributors/new-api/model"
+	"github.com/Project Contributors/new-api/service"
+	"github.com/Project Contributors/new-api/setting/operation_setting"
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 )

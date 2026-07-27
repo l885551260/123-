@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -286,4 +286,16 @@ export interface BillingHistoryResponse {
  */
 export interface CompleteOrderRequest {
   trade_no: string
+}
+
+/**
+ * Native payment response (Alipay/WeChat direct)
+ */
+export interface NativePaymentResponse {
+  message: string
+  data?: {
+    qr_code?: string
+    pay_url?: string
+    trade_no?: string
+  }
 }

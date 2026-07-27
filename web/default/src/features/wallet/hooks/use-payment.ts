@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -31,6 +31,7 @@ import {
 import {
   isStripePayment,
   isWaffoPancakePayment,
+  isNativePayment,
   submitPaymentForm,
 } from '../lib'
 
@@ -81,6 +82,13 @@ export function usePayment() {
     async (topupAmount: number, paymentType: string) => {
       try {
         setProcessing(true)
+
+        // Handle native payment (Alipay/WeChat direct) - delegate to caller
+        if (isNativePayment(paymentType)) {
+          // Native payment is handled by useNativePayment hook
+          // Return true to indicate the caller should use the native flow
+          return true
+        }
 
         const isStripe = isStripePayment(paymentType)
         const amount = Math.floor(topupAmount)

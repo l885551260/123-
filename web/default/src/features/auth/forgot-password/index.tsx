@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -17,6 +17,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AuthLayout } from '../auth-layout'
@@ -24,6 +25,7 @@ import { ForgotPasswordForm } from './components/forgot-password-form'
 
 export function ForgotPassword() {
   const { t } = useTranslation()
+  const [resetMode, setResetMode] = useState<'email' | 'phone'>('email')
   return (
     <AuthLayout>
       <div className='w-full space-y-8'>
@@ -32,9 +34,13 @@ export function ForgotPassword() {
             {t('Forgot password')}
           </h2>
           <p className='text-muted-foreground text-left text-sm sm:text-base'>
-            {t(
-              'Enter your registered email and we will send you a link to reset your password.'
-            )}
+            {resetMode === 'phone'
+              ? t(
+                  'Enter your registered phone number and we will help you reset your password.'
+                )
+              : t(
+                  'Enter your registered email and we will send you a link to reset your password.'
+                )}
           </p>
           <p className='text-muted-foreground text-left text-sm sm:text-base'>
             {t("Don't have an account?")}{' '}
@@ -48,7 +54,11 @@ export function ForgotPassword() {
           </p>
         </div>
 
-        <ForgotPasswordForm className='space-y-0' />
+        <ForgotPasswordForm
+          className='space-y-0'
+          resetMode={resetMode}
+          onResetModeChange={setResetMode}
+        />
       </div>
     </AuthLayout>
   )

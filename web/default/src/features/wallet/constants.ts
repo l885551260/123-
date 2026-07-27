@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -36,6 +36,8 @@ export const PAYMENT_TYPES = {
   CREEM: 'creem',
   WAFFO: 'waffo',
   WAFFO_PANCAKE: 'waffo_pancake',
+  ALIPAY_NATIVE: 'alipay_native',
+  WXPAY_NATIVE: 'wxpay_native',
 } as const
 
 /**
@@ -53,6 +55,8 @@ export const PAYMENT_ICON_COLORS = {
   [PAYMENT_TYPES.CREEM]: '#6366F1',
   [PAYMENT_TYPES.WAFFO]: '#2563EB',
   [PAYMENT_TYPES.WAFFO_PANCAKE]: '#F97316',
+  [PAYMENT_TYPES.ALIPAY_NATIVE]: '#1677FF',
+  [PAYMENT_TYPES.WXPAY_NATIVE]: '#07C160',
 } as const
 
 /**

@@ -1,6 +1,6 @@
-// Modified by aytdai on 2026-07-18 under AGPLv3
-// Copyright (C) 2023-2026 QuantumNous (original project)
-// Phone/SMS registration feature added by aytdai.
+// Modified on 2026-07-18 by project contributor under AGPLv3
+// Copyright (C) 2023-2026 Project Contributors (original project)
+// Phone/SMS registration feature added.
 
 package common
 

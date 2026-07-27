@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023-2026 QuantumNous
+Copyright (C) 2023-2026 Project Contributors
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -45,6 +45,19 @@ export interface RegisterPayload {
 
 export interface PasswordResetPayload {
   email: string
+  turnstile?: string
+}
+
+export interface PhoneLoginPayload {
+  phone: string
+  code: string
+  turnstile?: string
+}
+
+export interface PhoneResetPayload {
+  phone: string
+  code: string
+  password: string
   turnstile?: string
 }
 
@@ -114,6 +127,9 @@ export interface SystemStatus {
     WeChatAccountQRCodeImageURL?: string
     turnstile_check?: boolean
     turnstile_site_key?: string
+    aliyun_captcha_enabled?: boolean
+    aliyun_captcha_prefix?: string
+    aliyun_captcha_scene_id?: string
     email_verification?: boolean
     phone_verification?: boolean
     self_use_mode_enabled?: boolean
@@ -158,6 +174,9 @@ export interface SystemStatus {
   WeChatAccountQRCodeImageURL?: string
   turnstile_check?: boolean
   turnstile_site_key?: string
+  aliyun_captcha_enabled?: boolean
+  aliyun_captcha_prefix?: string
+  aliyun_captcha_scene_id?: string
   email_verification?: boolean
   phone_verification?: boolean
   self_use_mode_enabled?: boolean

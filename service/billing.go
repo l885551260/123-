@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/QuantumNous/new-api/logger"
-	relaycommon "github.com/QuantumNous/new-api/relay/common"
-	"github.com/QuantumNous/new-api/types"
+	"github.com/Project Contributors/new-api/logger"
+	relaycommon "github.com/Project Contributors/new-api/relay/common"
+	"github.com/Project Contributors/new-api/types"
 	"github.com/gin-gonic/gin"
 )
 
