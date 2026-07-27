@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Project Contributors/new-api/model"
+	"github.com/QuantumNous/new-api/model"
 )
 
 const (

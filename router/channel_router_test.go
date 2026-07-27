@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Project Contributors/new-api/controller"
-	"github.com/Project Contributors/new-api/service/authz"
+	"github.com/QuantumNous/new-api/controller"
+	"github.com/QuantumNous/new-api/service/authz"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

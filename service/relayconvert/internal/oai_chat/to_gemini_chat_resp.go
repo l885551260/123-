@@ -1,9 +1,9 @@
 package oaichat
 
 import (
-	"github.com/Project Contributors/new-api/common"
-	"github.com/Project Contributors/new-api/dto"
-	relaycommon "github.com/Project Contributors/new-api/relay/common"
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/dto"
+	relaycommon "github.com/QuantumNous/new-api/relay/common"
 )
 
 // ResponseOpenAI2Gemini 将 OpenAI 响应转换为 Gemini 格式

@@ -16,13 +16,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Project Contributors/new-api/common"
-	"github.com/Project Contributors/new-api/logger"
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/logger"
 
-	"github.com/Project Contributors/new-api/dto"
-	"github.com/Project Contributors/new-api/model"
-	"github.com/Project Contributors/new-api/setting/billing_setting"
-	"github.com/Project Contributors/new-api/setting/ratio_setting"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/setting/billing_setting"
+	"github.com/QuantumNous/new-api/setting/ratio_setting"
 	"github.com/samber/lo"
 
 	"github.com/gin-gonic/gin"

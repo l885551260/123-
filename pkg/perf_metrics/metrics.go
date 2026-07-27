@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Project Contributors/new-api/common"
-	"github.com/Project Contributors/new-api/model"
-	relaycommon "github.com/Project Contributors/new-api/relay/common"
-	"github.com/Project Contributors/new-api/setting/perf_metrics_setting"
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/model"
+	relaycommon "github.com/QuantumNous/new-api/relay/common"
+	"github.com/QuantumNous/new-api/setting/perf_metrics_setting"
 )
 
 var hotBuckets sync.Map

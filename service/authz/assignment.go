@@ -1,6 +1,6 @@
 package authz
 
-import "github.com/Project Contributors/new-api/common"
+import "github.com/QuantumNous/new-api/common"
 
 // resolveSubjectRoles returns the role keys assigned to a subject. The mapping
 // is derived from the caller's system role.

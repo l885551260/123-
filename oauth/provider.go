@@ -3,7 +3,7 @@ package oauth
 import (
 	"context"
 
-	"github.com/Project Contributors/new-api/model"
+	"github.com/QuantumNous/new-api/model"
 	"github.com/gin-gonic/gin"
 )
 

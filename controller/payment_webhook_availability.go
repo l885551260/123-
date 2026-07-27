@@ -3,9 +3,9 @@ package controller
 import (
 	"strings"
 
-	"github.com/Project Contributors/new-api/setting"
-	"github.com/Project Contributors/new-api/setting/operation_setting"
-	"github.com/Project Contributors/new-api/common"
+	"github.com/QuantumNous/new-api/setting"
+	"github.com/QuantumNous/new-api/setting/operation_setting"
+	"github.com/QuantumNous/new-api/common"
 )
 
 func isPaymentComplianceConfirmed() bool {

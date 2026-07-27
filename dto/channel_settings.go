@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Project Contributors/new-api/constant"
+	"github.com/QuantumNous/new-api/constant"
 )
 
 type ChannelSettings struct {

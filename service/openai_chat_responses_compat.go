@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/Project Contributors/new-api/dto"
-	"github.com/Project Contributors/new-api/service/relayconvert"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/service/relayconvert"
 )
 
 func ChatCompletionsRequestToResponsesRequest(req *dto.GeneralOpenAIRequest) (*dto.OpenAIResponsesRequest, error) {

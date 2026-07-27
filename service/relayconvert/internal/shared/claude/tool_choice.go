@@ -1,6 +1,6 @@
 package claude
 
-import "github.com/Project Contributors/new-api/dto"
+import "github.com/QuantumNous/new-api/dto"
 
 func MapOpenAIToolChoice(toolChoice any, parallelToolCalls *bool) *dto.ClaudeToolChoice {
 	var claudeToolChoice *dto.ClaudeToolChoice

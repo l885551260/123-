@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Project Contributors/new-api/dto"
-	"github.com/Project Contributors/new-api/relay/channel"
-	"github.com/Project Contributors/new-api/relay/channel/openai"
-	relaycommon "github.com/Project Contributors/new-api/relay/common"
-	"github.com/Project Contributors/new-api/types"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/relay/channel"
+	"github.com/QuantumNous/new-api/relay/channel/openai"
+	relaycommon "github.com/QuantumNous/new-api/relay/common"
+	"github.com/QuantumNous/new-api/types"
 
-	"github.com/Project Contributors/new-api/relay/constant"
+	"github.com/QuantumNous/new-api/relay/constant"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"

@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Project Contributors/new-api/common"
-	"github.com/Project Contributors/new-api/dto"
-	"github.com/Project Contributors/new-api/model"
-	"github.com/Project Contributors/new-api/setting/system_setting"
+	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/setting/system_setting"
 )
 
 func NotifyRootUser(t string, subject string, content string) {

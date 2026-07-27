@@ -8,16 +8,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Project Contributors/new-api/common"
+	"github.com/QuantumNous/new-api/common"
 	"github.com/gin-gonic/gin"
 
-	"github.com/Project Contributors/new-api/constant"
-	"github.com/Project Contributors/new-api/dto"
-	"github.com/Project Contributors/new-api/model"
-	"github.com/Project Contributors/new-api/relay/channel"
-	taskcommon "github.com/Project Contributors/new-api/relay/channel/task/taskcommon"
-	relaycommon "github.com/Project Contributors/new-api/relay/common"
-	"github.com/Project Contributors/new-api/service"
+	"github.com/QuantumNous/new-api/constant"
+	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/relay/channel"
+	taskcommon "github.com/QuantumNous/new-api/relay/channel/task/taskcommon"
+	relaycommon "github.com/QuantumNous/new-api/relay/common"
+	"github.com/QuantumNous/new-api/service"
 
 	"github.com/pkg/errors"
 )
