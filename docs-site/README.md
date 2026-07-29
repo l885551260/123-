@@ -1,47 +1,84 @@
-# 欢迎使用安逸通达
+# 安逸通达 AI 平台
 
-安逸通达 www.aytdai.com 是一个 AI 智能接口平台，把多种主流 AI 模型统一接入到一个接口里。**一个账号、一个 API Key 就能调用所有模型**。
+**一句话说明白**：我们是一个 AI 模型的"中转站"。你只需要一个账号、一个密钥，就能调用 DeepSeek、Kimi、通义千问、智谱、MiniMax 等多家 AI 模型，不用分别去各家注册。
 
-## 快速开始
+---
 
-1. **注册账号** — 访问 [www.aytdai.com](https://www.aytdai.com)，支持用户名/邮箱/手机号注册，新用户赠送 **¥1** 体验额度
-2. **获取 API Key** — 登录后进入 **控制台** → **创建API密钥** 
-3. **开始使用** — 支持 OpenAI、Claude 两种 API 格式，选你熟悉的即可
-4. **充值** — 体验额度用完后，支持支付宝/微信扫码充值，¥10 起充
+## 三步开始用
 
-## 当前支持的模型
+| 步骤 | 做什么 | 怎么做 |
+|------|--------|--------|
+| ① 注册 | 创建账号 | 打开 [www.aytdai.com](https://www.aytdai.com)，手机号/邮箱/用户名都能注册。新用户送 **¥1** 体验金 |
+| ② 拿密钥 | 获取 API Key | 登录后点 **控制台 → 创建API密钥**，会得到一个 `sk-` 开头的字符串 |
+| ③ 用起来 | 接入工具或写代码 | 把密钥填到你想用的工具里（Cursor、Claude Code 等），或者用代码直接调用 |
 
-| 厂商 | 模型 | 适合场景 |
-|------|------|--------|
-| DeepSeek | `deepseek-v4-flash` | 日常对话、翻译、轻量任务 |
-| DeepSeek | `deepseek-v4-pro` | 复杂推理、代码生成 |
-| 月之暗面 | `kimi-k2.7-code` | 编程、代码审查（支持图片输入） |
-| 月之暗面 | `kimi/kimi-k3` | 旗舰综合模型 |
-| 通义千问 | `qwen3.7-flash` / `qwen3.7-plus` / `qwen3.7-max` | 轻量→通用→复杂推理 |
-| 智谱 | `glm-5.2` | 通用大模型 |
-| MiniMax | `MiniMax-M2.5` / `MiniMax/MiniMax-M3` | 通用大模型 |
+> 体验金用完了？控制台 → 钱包 → 充值，支付宝/微信扫码，¥10 起充，即时到账。
 
-> 模型列表可能随平台接入情况调整，以 `GET /v1/models` 返回为准。详见 [API 使用文档](01-API使用文档.md)。
+---
 
-## 支持的客户端
+## 有哪些模型可以用？
 
-支持 ChatGPT-Next-Web、Lobe Chat、Cherry Studio、Cursor、Windsurf 等任何兼容 OpenAI API 的客户端。
+| 模型 | 谁家出的 | 干什么用 |
+|------|---------|---------|
+| `deepseek-v4-flash` | DeepSeek | 便宜快速，日常聊天、翻译 |
+| `deepseek-v4-pro` | DeepSeek | 能力强，写代码、复杂推理（**推荐**） |
+| `kimi-k2.7-code` | 月之暗面 | 专门写代码，还能看图 |
+| `kimi/kimi-k3` | 月之暗面 | Kimi 家最强的通用模型 |
+| `qwen3.7-flash` | 阿里通义千问 | 最便宜，简单任务 |
+| `qwen3.7-plus` | 阿里通义千问 | 均衡，啥都能干 |
+| `qwen3.7-max` | 阿里通义千问 | 通义家最强，复杂推理 |
+| `glm-5.2` | 智谱 | 通用大模型 |
+| `MiniMax-M2.5` | MiniMax | 通用大模型 |
+| `MiniMax/MiniMax-M3` | MiniMax | MiniMax 家更强版本 |
 
-配置详情见 [API 使用文档 — 第三方客户端配置速查](01-API使用文档.md#第三方客户端配置速查)。
+> 模型可能随时增减，以实际查询为准。
 
-## 文档导航
+---
 
-- **[API 使用文档](01-API使用文档.md)** — OpenAI / Claude 两种格式的接口说明和代码示例
-- **[定价与充值](02-定价与充值说明.md)** — 模型价格、充值方式、计费规则
-- **[常见问题](03-常见问题FAQ.md)** — 注册、使用、充值相关 FAQ
-- **[错误码参考](04-错误码参考.md)** — 错误排查指南
+## 我想用聊天客户端（不会写代码）
 
-### AI 编程工具接入指南
+推荐这几款，下载后填上我们的地址和密钥就能用：
 
-- **[Claude Code 接入指南](05-Claude-Code接入指南.md)** — Anthropic 官方终端编程 Agent
-- **[OpenClaw 接入指南](06-OpenClaw接入指南.md)** — 本地运行的个人 AI 助手
-- **[TRAE 接入指南](07-TRAE接入指南.md)** — 字节跳动 AI IDE
-- **[Cursor 接入指南](08-Cursor接入指南.md)** — AI 驱动的智能代码编辑器
-- **[Hermes Agent 接入指南](09-Hermes-Agent接入指南.md)** — Nous Research 自进化 AI Agent
-- **[Codex 接入指南](10-Codex接入指南.md)** — OpenAI 本地终端编程 Agent
-- **[其他工具接入指南](11-其他工具接入指南.md)** — Dify、Cherry Studio、Zed、LangChain 等
+| 客户端 | 类型 | 地址怎么填 |
+|--------|------|-----------|
+| [Cherry Studio](https://github.com/CherryHQ/cherry-studio) | 桌面软件 | `https://www.aytdai.com/v1` |
+| [ChatGPT-Next-Web](https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web) | 网页 | `https://www.aytdai.com`（它会自动加 /v1） |
+| [Lobe Chat](https://github.com/lobehub/lobe-chat) | 网页 | `https://www.aytdai.com/v1` |
+
+详细配置方法看 → [API 使用文档](01-API使用文档.md)
+
+---
+
+## 我想用 AI 编程工具
+
+| 工具 | 一句话介绍 | 接入教程 |
+|------|-----------|---------|
+| Claude Code | 终端里的 AI 程序员 | [教程](05-Claude-Code接入指南.md) |
+| Cursor | 最火的 AI 代码编辑器 | [教程](08-Cursor接入指南.md) |
+| TRAE | 字节跳动做的 AI IDE | [教程](07-TRAE接入指南.md) |
+| Codex | OpenAI 的编程 Agent | [教程](10-Codex接入指南.md) |
+| OpenClaw | 本地 AI 助手 | [教程](06-OpenClaw接入指南.md) |
+| Hermes Agent | 会自我进化的 AI Agent | [教程](09-Hermes-Agent接入指南.md) |
+| 其他（Dify、Zed、LangChain…） | 看这里 | [教程](11-其他工具接入指南.md) |
+
+> **通用配置就三样东西**：选 OpenAI 兼容 → 地址填 `https://www.aytdai.com/v1` → 密钥填你的 `sk-xxx`。
+
+---
+
+## 多少钱？
+
+按用量付费，用多少扣多少，不用不花钱。举几个例子：
+
+- 问一个简单问题：约 ¥0.0004（不到一厘钱）
+- 翻译一篇文章：约 ¥0.006
+- **充 ¥10 大概能用 1000~5000 次对话**
+
+完整价格表 → [定价与充值说明](02-定价与充值说明.md)
+
+---
+
+## 遇到问题了？
+
+- 先看看 → [常见问题 FAQ](03-常见问题FAQ.md)
+- 报错了 → [错误码参考](04-错误码参考.md)
+- 还是搞不定 → 发邮件：aytdai@163.com
