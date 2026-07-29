@@ -6,11 +6,22 @@
 
 ---
 
+## 前置条件
+
+| 条件 | 要求 |
+|------|------|
+| 操作系统 | macOS 13+、Linux（Ubuntu 20.04+ / Debian 10+ / Alpine 3.19+）、Windows 10+（原生或 WSL） |
+| 内存 | 至少 4GB（推荐 8GB） |
+| API Key | 本平台签发的 `sk-` 前缀密钥 |
+| 环境变量 | 需清除 `ANTHROPIC_AUTH_TOKEN` 和 `ANTHROPIC_BASE_URL`（若存在） |
+
+---
+
 ## 安装 Claude Code
 
 参考 [Claude Code 官方文档](https://code.claude.com/docs/en/setup) 完成安装。
 
-**快速安装命令**：
+### 方式一：原生安装器（推荐）
 
 macOS / Linux：
 ```bash
@@ -22,20 +33,32 @@ Windows（PowerShell）：
 irm https://claude.ai/install.ps1 | iex
 ```
 
-或通过 npm（需 Node.js 22+）：
+【补充说明：原生安装器无需 Node.js 依赖，支持后台自动更新。】
+
+### 方式二：npm 安装
+
+需 Node.js 22+：
 ```bash
 npm install -g @anthropic-ai/claude-code@latest
 ```
 
-安装完成后执行 `claude --version` 确认安装成功。
+### 验证安装
+
+```bash
+claude --version
+```
+
+**预期结果**：输出版本号。
 
 ---
 
 ## 配置本平台 API
 
+### 前置操作：清除 Anthropic 环境变量
+
 > **⚠️ 重要提示**
 >
-> 配置前，必须确保清除以下 Anthropic 相关环境变量，否则其优先级高于配置文件，将导致请求被路由至 Anthropic 官方端点：
+> 配置前，必须确保清除以下 Anthropic 相关环境变量。环境变量 `ANTHROPIC_AUTH_TOKEN` 和 `ANTHROPIC_BASE_URL` 的优先级高于配置文件，若存在残留将导致请求被路由至 Anthropic 官方端点：
 >
 > - `ANTHROPIC_AUTH_TOKEN`
 > - `ANTHROPIC_BASE_URL`
@@ -47,14 +70,12 @@ npm install -g @anthropic-ai/claude-code@latest
 >
 > 若以上变量在 `~/.bashrc` / `~/.zshrc` 中被永久导出，需同步删除对应行，否则新开 shell 会再次注入。
 >
-> Windows PowerShell 用户：
+> Windows PowerShell：
 > ```powershell
 > $env:ANTHROPIC_AUTH_TOKEN = ""
 > $env:ANTHROPIC_BASE_URL = ""
 > ```
 > 若在系统环境变量中永久设置，需前往「系统属性 → 环境变量」中手动删除。
-
----
 
 ### 步骤一：编辑配置文件
 
@@ -63,7 +84,7 @@ npm install -g @anthropic-ai/claude-code@latest
 - macOS / Linux：`~/.claude/settings.json`
 - Windows：`C:\Users\你的用户名\.claude\settings.json`
 
-写入以下内容（将 `sk-你的密钥` 替换为你在本平台创建的 API Key）：
+写入以下内容：
 
 ```json
 {
@@ -79,27 +100,23 @@ npm install -g @anthropic-ai/claude-code@latest
 }
 ```
 
-**字段说明**：
+将 `sk-你的密钥` 替换为本平台 API Key（[控制台](https://www.aytdai.com) → 创建 API 密钥）。
+
+### 字段说明
 
 | 环境变量 | 作用 |
 |----------|------|
 | `ANTHROPIC_BASE_URL` | API 端点地址，指向本平台 |
-| `ANTHROPIC_AUTH_TOKEN` | 认证令牌，即你的 `sk-` 开头 API Key |
+| `ANTHROPIC_AUTH_TOKEN` | 认证令牌，即 `sk-` 前缀 API Key |
 | `CLAUDE_CODE_AUTO_COMPACT_WINDOW` | 自动压缩阈值（Token 数），与模型上下文窗口保持一致 |
 | `ANTHROPIC_MODEL` | 默认使用的主模型 |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet 别名对应的实际模型 |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus 别名对应的实际模型 |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku 别名对应的实际模型 |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet 别名映射的实际模型 |
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus 别名映射的实际模型 |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku 别名映射的实际模型 |
 
-【补充说明①：环境变量 `ANTHROPIC_AUTH_TOKEN` 和 `ANTHROPIC_BASE_URL` 的优先级高于配置文件。若系统环境中已存在同名变量（如通过 `export` 或 Windows 系统变量设置），将覆盖 `settings.json` 中的值。因此配置前必须执行上方清除步骤。】
+【补充说明①：Claude Code 内部以 Sonnet / Opus / Haiku 三个别名调度不同场景的模型。通过上述配置，将所有别名统一映射到本平台模型，确保无论 Claude Code 内部调用哪个别名，实际请求均发往本平台。】
 
-【补充说明②：Claude Code 内部以 Sonnet / Opus / Haiku 三个别名调度不同场景的模型。通过上述配置，可将所有别名统一映射到本平台模型，确保无论 Claude Code 内部调用哪个别名，实际请求均发往本平台。】
-
-【补充说明③：`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 用于设定 Claude Code 的自动上下文压缩阈值。当对话 Token 数接近该值时，Claude Code 会自动压缩历史消息以释放上下文空间。此值应与所配置模型的上下文窗口大小一致。`deepseek-v4-pro` 的上下文窗口为 131072 tokens。】
-
-> API Key 获取方式：登录 [控制台](https://www.aytdai.com) → 创建 API 密钥。
-
----
+【补充说明②：`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 用于设定自动上下文压缩阈值。当对话 Token 数接近该值时，Claude Code 自动压缩历史消息以释放上下文空间。此值应与所配置模型的上下文窗口大小一致。`deepseek-v4-pro` 的上下文窗口为 131072 tokens。】
 
 ### 步骤二：新增 onboarding 标记
 
@@ -116,9 +133,7 @@ npm install -g @anthropic-ai/claude-code@latest
 }
 ```
 
-【补充说明：此标记用于跳过 Claude Code 首次启动时的 Anthropic 官方账户登录引导。若不设置，Claude Code 会强制要求登录 Anthropic 账户或设置官方 API Key，无法直接使用第三方端点。】
-
----
+【补充说明：此标记用于跳过 Claude Code 首次启动时的 Anthropic 官方账户登录引导。若不设置，Claude Code 将强制要求登录 Anthropic 账户或设置官方 API Key，无法直接使用第三方端点。】
 
 ### 步骤三：启动 Claude Code
 
@@ -160,19 +175,6 @@ claude
 
 切换模型：在 Claude Code 中运行 `/model` 命令。完整模型列表见 [首页](/)。
 
-
-
----
-
-## 扩展思考（Extended Thinking）
-
-本平台 DeepSeek 系列模型支持 Claude Code 的扩展思考功能，默认开启。
-
-- 开关方式：运行 `/config`，将 **Thinking mode** 设为 `true` 或 `false`
-- 快捷键：`Option+T`（macOS）或 `Alt+T`（Windows/Linux）
-
-【补充说明：DeepSeek 模型的思考过程（thinking tokens）会计入输出 Token 消耗。若回答被截断，可适当调大 max_tokens 参数（建议 8192 以上），或在 `/config` 中关闭思考模式以节省 Token。】
-
 ---
 
 ## 兼容性限制
@@ -186,7 +188,18 @@ claude
 >
 > 若将上述模型填入 `ANTHROPIC_MODEL` 等配置项，Claude Code 启动后将无法正常对话。
 
-【补充说明：Claude Code 使用 Anthropic Messages API 格式（`/v1/messages` 端点）与后端通信。本平台中，仅支持 OpenAI Chat Completions 格式的模型（如 `kimi/kimi-k3`、`MiniMax/MiniMax-M3`）无法被 Claude Code 正确解析。其余模型（`deepseek-v4-pro`、`deepseek-v4-flash`、`kimi-k2.7-code`、`qwen3.7-*`、`glm-5.2`、`MiniMax-M2.5`）均可正常使用。】
+【补充说明：Claude Code 使用 Anthropic Messages API 格式（`/v1/messages` 端点）与后端通信。本平台中，仅支持 OpenAI Chat Completions 格式的模型无法被 Claude Code 正确解析。其余模型（`deepseek-v4-pro`、`deepseek-v4-flash`、`kimi-k2.7-code`、`qwen3.7-*`、`glm-5.2`、`MiniMax-M2.5`）均可正常使用。】
+
+---
+
+## 扩展思考（Extended Thinking）
+
+本平台 DeepSeek 系列模型支持 Claude Code 的扩展思考功能，默认开启。
+
+- 开关方式：运行 `/config`，将 **Thinking mode** 设为 `true` 或 `false`
+- 快捷键：`Option+T`（macOS）或 `Alt+T`（Windows/Linux）
+
+【补充说明：DeepSeek 模型的思考过程（thinking tokens）会计入输出 Token 消耗。若回答被截断，可调大 max_tokens 参数（建议 8192+），或关闭思考模式以节省 Token。】
 
 ---
 
@@ -221,10 +234,14 @@ claude
 
 【补充说明：Claude Code 的配置优先级为：系统环境变量 > `settings.json` 中的 `env` 字段。若系统环境中已导出 `ANTHROPIC_AUTH_TOKEN` 或 `ANTHROPIC_BASE_URL`（例如在 `~/.bashrc`、`~/.zshrc`、Windows 系统变量中），则 `settings.json` 中的同名配置将被覆盖，请求会发往错误地址。务必确保系统环境中无残留。】
 
-### 配置回滚：恢复使用 Anthropic 官方服务
+---
 
-若需恢复 Claude Code 的默认行为（连接 Anthropic 官方 API）：
+## 配置回滚
+
+若需恢复使用 Anthropic 官方服务：
 
 1. 删除 `~/.claude/settings.json` 中的 `env` 对象（或删除整个文件）
 2. 删除 `~/.claude.json` 中的 `hasCompletedOnboarding` 字段
 3. 重新启动 `claude`，按提示完成 Anthropic 账户登录
+
+完整可用模型列表见 [首页](/)。
