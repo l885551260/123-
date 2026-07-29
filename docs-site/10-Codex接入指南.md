@@ -1,18 +1,32 @@
 # Codex 接入指南
 
-[Codex](https://developers.openai.com/codex/) 是 OpenAI 官方的桌面 AI 编程 Agent。
+[Codex](https://developers.openai.com/codex/) 是 OpenAI 官方的桌面 AI 编程 Agent，能读代码、改文件、跑命令。
 
 ---
 
-## 安装
+## 第一步：安装
 
-从 [OpenAI Codex 页面](https://developers.openai.com/codex/) 下载安装。
+从 [OpenAI Codex 页面](https://developers.openai.com/codex/) 下载安装包，双击装好。
+
+或者用命令行：
+```bash
+npm install -g @openai/codex
+```
+
+装完验证：
+```bash
+codex --version
+```
 
 ---
 
-## 配置
+## 第二步：配置接入我们平台
 
-编辑 `~/.codex/config.toml`（Windows 为 `用户目录/.codex/config.toml`）：
+编辑配置文件（没有就新建）：
+- macOS / Linux：`~/.codex/config.toml`
+- Windows：`C:\Users\你的用户名\.codex\config.toml`
+
+写入：
 
 ```toml
 model = "deepseek-v4-pro"
@@ -28,15 +42,40 @@ wire_api = "chat"
 
 > 把 `sk-你的密钥` 换成你的 API Key（[控制台](https://www.aytdai.com) → 创建API密钥）。
 
-重启 Codex 即可。
+保存后重启 Codex 即可。
+
+**字段说明**：
+| 字段 | 含义 |
+|------|------|
+| `model` | 默认使用的模型名 |
+| `model_provider` | 指向下面定义的 provider 名称 |
+| `base_url` | 我们平台的 API 地址 |
+| `experimental_bearer_token` | 你的 API Key |
+| `wire_api` | 必须填 `"chat"`（走 Chat Completions 协议） |
+
+---
+
+## 第三步：使用
+
+```bash
+codex
+```
+
+进入后直接输入任务描述就行。Codex 会自己读代码、改文件、跑命令。
 
 ---
 
 ## 切换模型
 
-改 `config.toml` 里的 `model = "模型名"` 就行。
+改 `config.toml` 里的 `model = "模型名"` 就行：
 
-推荐：`deepseek-v4-pro`（写代码）、`deepseek-v4-flash`（省钱）。完整列表看 [首页](/)。
+| 模型 | 适合 |
+|------|------|
+| `deepseek-v4-pro` | 写代码首选（推荐） |
+| `deepseek-v4-flash` | 简单任务，省钱 |
+| `kimi-k2.7-code` | 代码专精 |
+
+完整列表看 [首页](/)。
 
 ---
 
@@ -99,7 +138,12 @@ model_catalog_json = "~/.codex/model-catalogs/custom-catalog.json"
 
 **连不上？**
 - `experimental_bearer_token` 是不是你的 `sk-xxx` 密钥
-- `base_url` 是不是 `https://www.aytdai.com/v1`
+- `base_url` 是不是 `https://www.aytdai.com/v1`（有 /v1）
+- `wire_api` 是不是 `"chat"`
 - 余额够不够
 
-**回答截断？** 调大 `model_context_window` 或 max_tokens。
+**回答截断？** 调大 `model_context_window` 或在请求中设 max_tokens。
+
+**报错 "model not found"？**
+- 模型名拼写要和平台上的完全一致（区分大小写）
+- 别加 `openai/` 前缀，直接写 `deepseek-v4-pro`
