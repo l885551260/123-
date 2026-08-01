@@ -154,7 +154,7 @@ func AlipayNotify(c *gin.Context) {
 			return
 		}
 
-		if err := model.IncreaseUserQuota(topUp.UserId, int(topUp.Amount), true); err != nil {
+		if err := model.IncreaseUserQuota(topUp.UserId, int(float64(topUp.Amount)*common.QuotaPerUnit), true); err != nil {
 			common.SysError(fmt.Sprintf("alipay notify: increase quota error: %v", err))
 			c.String(http.StatusOK, "fail")
 			return
@@ -294,7 +294,7 @@ func WxPayNotify(c *gin.Context) {
 			return
 		}
 
-		if err := model.IncreaseUserQuota(topUp.UserId, int(topUp.Amount), true); err != nil {
+		if err := model.IncreaseUserQuota(topUp.UserId, int(float64(topUp.Amount)*common.QuotaPerUnit), true); err != nil {
 			common.SysError(fmt.Sprintf("wxpay notify: increase quota error: %v", err))
 			c.JSON(http.StatusInternalServerError, gin.H{"code": "FAIL", "message": "quota error"})
 			return

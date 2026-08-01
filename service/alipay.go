@@ -29,14 +29,31 @@ func GetAlipayClient() *alipay.Client {
 }
 
 // CreateAlipayTrade creates an Alipay payment order.
-// Uses TradePagePay (电脑网站支付) for both PC and mobile.
-// Alipay cashier page auto-adapts to mobile browsers (opens app or H5 page).
+// Uses TradeWapPay (手机网站支付) for mobile browsers — auto-opens Alipay app.
+// Uses TradePagePay (电脑网站支付) for desktop browsers.
 func CreateAlipayTrade(tradeNo, subject, amount, clientIP string, isMobile bool, notifyUrl, returnUrl string) (payURL string, qrCode string, err error) {
 	client := GetAlipayClient()
 	if client == nil {
 		return "", "", fmt.Errorf("alipay client not configured")
 	}
 
+	if isMobile {
+		p := alipay.TradeWapPay{}
+		p.NotifyURL = notifyUrl
+		p.ReturnURL = returnUrl
+		p.Subject = subject
+		p.OutTradeNo = tradeNo
+		p.TotalAmount = amount
+		p.ProductCode = "QUICK_WAP_WAY"
+
+		payUrl, err := client.TradeWapPay(p)
+		if err != nil {
+			return "", "", fmt.Errorf("alipay wap pay create error: %w", err)
+		}
+		return payUrl.String(), "", nil
+	}
+
+	// Desktop: 电脑网站支付
 	p := alipay.TradePagePay{}
 	p.NotifyURL = notifyUrl
 	p.ReturnURL = returnUrl
